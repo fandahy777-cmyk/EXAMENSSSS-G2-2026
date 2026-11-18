@@ -1,0 +1,2019 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examen d'Informatique — Classe G2 II (Word & WPS Office)</title>
+    <!-- Tailwind CSS pour le design moderne et responsive (PC & Smartphone) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts : Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SheetJS pour l'exportation authentique en classeur Excel (.xlsx) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #eff6ff; /* Bleu très clair (#eff6ff) */
+        }
+        .form-card {
+            background: #ffffff;
+            border-radius: 0.85rem;
+            box-shadow: 0 2px 6px rgba(30, 64, 175, 0.06), 0 1px 2px rgba(30, 64, 175, 0.04);
+            border: 1px solid #bfdbfe;
+        }
+        .header-accent {
+            border-top: 8px solid #1e40af; /* Bleu royal (#1e40af) */
+        }
+        .input-line {
+            border: none;
+            border-bottom: 1.5px solid #cbd5e1;
+            border-radius: 0;
+            padding: 0.55rem 0.25rem;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+        .input-line:focus {
+            outline: none;
+            border-bottom: 2px solid #1e40af;
+            background-color: #eff6ff;
+        }
+        .option-label {
+            transition: all 0.15s ease;
+        }
+        .option-label:hover {
+            background-color: #eff6ff;
+            border-color: #93c5fd;
+        }
+        input[type="radio"]:checked + span {
+            font-weight: 600;
+            color: #1e3a8a;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 pb-20">
+
+    <!-- ===================================================================== -->
+    <!-- BARRE DE NAVIGATION SUPÉRIEURE                                        -->
+    <!-- ===================================================================== -->
+    <nav class="bg-white border-b border-blue-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+            <!-- Identité de l'application -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-[#1e40af] text-white flex items-center justify-center font-bold shadow-sm shrink-0">
+                    <i class="fa-solid fa-file-word text-lg"></i>
+                </div>
+                <div>
+                    <span class="font-extrabold text-slate-900 text-sm sm:text-base block leading-tight">
+                        Examen Informatique — Classe G2 II
+                    </span>
+                    <span class="text-xs text-slate-500 font-medium">
+                        Microsoft Word (PC) &amp; WPS Office (Mobile) • Accueil &amp; Insertion
+                    </span>
+                </div>
+            </div>
+
+            <!-- Sélecteur de Mode (Mode Test 4 Q vs Examen Complet 10 Q) -->
+            <div class="flex items-center bg-blue-50 border border-blue-200 rounded-xl p-1 text-xs sm:text-sm">
+                <button id="btn-mode-test" onclick="setExamMode('test')" class="px-3 py-1.5 rounded-lg font-semibold bg-[#1e40af] text-white shadow-sm transition">
+                    Mode Test (4 Q)
+                </button>
+                <button id="btn-mode-full" onclick="requestFullExamAccess()" class="px-3 py-1.5 rounded-lg font-semibold text-blue-950 hover:bg-blue-100 transition flex items-center">
+                    <i id="full-exam-lock-icon" class="fa-solid fa-lock mr-1.5 text-amber-600"></i> Examen Complet (10 Q)
+                </button>
+            </div>
+
+            <!-- Actions : Formulaire / Espace Enseignant / Sauvegarder (.html) -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button id="tab-student" onclick="switchTab('student')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-50 text-[#1e40af] border border-blue-200 transition">
+                    <i class="fa-solid fa-pen-to-square mr-1"></i> Formulaire
+                </button>
+                <button id="tab-teacher" onclick="requestTeacherAccess()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition relative">
+                    <i id="teacher-lock-icon" class="fa-solid fa-lock mr-1 text-amber-600"></i> Espace Enseignant
+                    <span id="badge-count" class="ml-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-[#1e40af] rounded-full">0</span>
+                </button>
+                <button onclick="downloadStandaloneHtml(false)" title="Télécharger cette application complète sur votre ordinateur (.html)" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-slate-800 hover:bg-slate-900 text-white shadow-sm transition">
+                    <i class="fa-solid fa-download mr-1 text-blue-300"></i> Sauvegarder (.html)
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===================================================================== -->
+    <!-- MODALE 1 : CODE PIN ESPACE ENSEIGNANT                                 -->
+    <!-- ===================================================================== -->
+    <div id="pin-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="form-card header-accent max-w-md w-full p-6 sm:p-7 space-y-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 text-[#1e40af] flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Espace Enseignant (G2 II)</h3>
+                        <p class="text-xs text-slate-500">Accès protégé par code PIN</p>
+                    </div>
+                </div>
+                <button onclick="closePinModal()" class="text-slate-400 hover:text-slate-700 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="pin-form" class="space-y-4">
+                <div>
+                    <label for="teacher-pin-input" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Code PIN Enseignant
+                    </label>
+                    <input type="password" id="teacher-pin-input" autocomplete="off" placeholder="••••"
+                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1e40af] text-base tracking-widest font-mono">
+                    <p id="pin-error-msg" class="hidden text-xs text-red-600 font-semibold mt-1.5">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Code PIN incorrect.
+                    </p>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 flex items-start space-x-2">
+                    <i class="fa-solid fa-key text-amber-600 mt-0.5"></i>
+                    <div>
+                        <span class="font-semibold">Code PIN par défaut :</span> <code class="bg-white px-1.5 py-0.5 rounded border border-amber-300 font-bold text-[#1e40af]">2026</code> (modifiable dans l'Espace Enseignant).
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closePinModal()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                        Annuler
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-[#1e40af] hover:bg-blue-900 text-white text-sm font-semibold rounded-xl shadow transition">
+                        <i class="fa-solid fa-unlock mr-1.5"></i> Déverrouiller
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODALE 2 : MOT DE PASSE EXAMEN COMPLET (10 QUESTIONS)                 -->
+    <!-- ===================================================================== -->
+    <div id="full-exam-modal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="form-card header-accent max-w-md w-full p-6 sm:p-7 space-y-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Examen Complet (10 Questions)</h3>
+                        <p class="text-xs text-slate-500">Saisissez le mot de passe communiqué par l'enseignant</p>
+                    </div>
+                </div>
+                <button onclick="closeFullExamModal()" class="text-slate-400 hover:text-slate-700 p-1">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="full-exam-form" class="space-y-4">
+                <div>
+                    <label for="full-exam-pwd-input" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Mot de passe de l'épreuve officielle
+                    </label>
+                    <input type="password" id="full-exam-pwd-input" autocomplete="off" placeholder="Mot de passe..."
+                           class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1e40af] text-base tracking-widest font-mono">
+                    <p id="full-exam-error-msg" class="hidden text-xs text-red-600 font-semibold mt-1.5">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Mot de passe incorrect. Accès refusé.
+                    </p>
+                </div>
+
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-950 flex items-start space-x-2">
+                    <i class="fa-solid fa-shield text-[#1e40af] mt-0.5"></i>
+                    <div>
+                        Ce mode est verrouillé pour éviter toute navigation non autorisée depuis le <strong>Mode Test (4 Q)</strong>. Si vous revenez sur le Mode Test, l'Examen Complet sera automatiquement reverrouillé.
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeFullExamModal()" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                        Annuler
+                    </button>
+                    <button type="submit" class="px-5 py-2 bg-[#1e40af] hover:bg-blue-900 text-white text-sm font-semibold rounded-xl shadow transition">
+                        <i class="fa-solid fa-unlock mr-1.5"></i> Démarrer les 10 questions
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Conteneur de notifications Toast (remplace alert()) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+    <!-- ===================================================================== -->
+    <!-- VUE 1 : INTERFACE ÉTUDIANT                                            -->
+    <!-- ===================================================================== -->
+    <main id="view-student" class="max-w-3xl mx-auto px-4 pt-6 space-y-5">
+        
+        <!-- Carte d'en-tête de l'évaluation -->
+        <div class="form-card header-accent p-6 sm:p-8">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                <span id="mode-indicator" class="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                    <i class="fa-solid fa-flask mr-1"></i> MODE TEST : 2 Onglet Accueil + 2 Onglet Insertion (4 Q)
+                </span>
+                <div class="flex flex-wrap items-center gap-2">
+                    <span id="cloud-status-pill" class="inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-300">
+                        <i class="fa-solid fa-cloud mr-1"></i> Sync Google Sheets : Non configurée
+                    </span>
+                    <span id="group-badge-header" class="inline-block px-3 py-1 text-xs font-bold rounded-full bg-blue-100 text-blue-950 border border-blue-300">
+                        Sujet : Groupe A
+                    </span>
+                </div>
+            </div>
+
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-3">
+                Examen d'Informatique — Classe G2 II (Word &amp; WPS Office)
+            </h1>
+            <p class="text-sm sm:text-base text-slate-600 leading-relaxed mb-4">
+                Évaluation pratique portant sur <strong>Microsoft Word (PC)</strong> et <strong>WPS Office (téléphone)</strong>, consacrée à l'<strong>Onglet Accueil</strong> (mise en forme, paragraphes, styles, édition) et à l'<strong>Onglet Insertion</strong> (tableaux, illustrations, en-têtes, pagination). Renseignez votre identité et votre groupe avant de répondre.
+            </p>
+
+            <!-- Barre de progression en temps réel -->
+            <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3.5 space-y-2">
+                <div class="flex items-center justify-between text-xs font-semibold">
+                    <span class="text-slate-700">
+                        <i class="fa-solid fa-list-check text-[#1e40af] mr-1.5"></i> Progression : <span id="progress-text" class="text-[#1e40af]">0 / 4 questions répondues</span>
+                    </span>
+                    <span id="points-total-label" class="text-slate-600">Barème : 4 points (ramené sur 20)</span>
+                </div>
+                <div class="w-full bg-blue-200/70 rounded-full h-2 overflow-hidden">
+                    <div id="progress-bar" class="bg-[#1e40af] h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire actif -->
+        <form id="exam-form" novalidate class="space-y-5">
+            
+            <!-- Section 1 : Identification de l'étudiant -->
+            <div class="form-card p-6 sm:p-7 space-y-5">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center">
+                        <span class="w-7 h-7 rounded-full bg-blue-100 text-[#1e40af] text-sm flex items-center justify-center mr-2 font-bold">1</span>
+                        Identification de l'Étudiant &amp; Choix du Groupe
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Tous les champs marqués d'un astérisque (<span class="text-red-600">*</span>) sont obligatoires.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <!-- Nom -->
+                    <div>
+                        <label for="student-nom" class="block text-sm font-semibold text-slate-800 mb-1">
+                            Nom <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" id="student-nom" required placeholder="Ex: RAKOTO"
+                               class="w-full input-line text-sm sm:text-base uppercase">
+                    </div>
+
+                    <!-- Prénom -->
+                    <div>
+                        <label for="student-prenom" class="block text-sm font-semibold text-slate-800 mb-1">
+                            Prénom <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" id="student-prenom" required placeholder="Ex: Fanja Nirina"
+                               class="w-full input-line text-sm sm:text-base">
+                    </div>
+
+                    <!-- Numéro d'inscription / classe -->
+                    <div>
+                        <label for="student-numero" class="block text-sm font-semibold text-slate-800 mb-1">
+                            Numéro d'inscription / classe <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" id="student-numero" required placeholder="Ex: 12 ou G2II-012"
+                               class="w-full input-line text-sm sm:text-base">
+                    </div>
+
+                    <!-- Classe (verrouillée sur G2 II) -->
+                    <div>
+                        <label for="student-classe" class="block text-sm font-semibold text-slate-800 mb-1">
+                            Classe
+                        </label>
+                        <input type="text" id="student-classe" readonly value="G2 II"
+                               class="w-full input-line text-sm sm:text-base font-bold text-[#1e40af] bg-slate-50 cursor-not-allowed">
+                    </div>
+
+                    <!-- Sélection du Groupe -->
+                    <div class="sm:col-span-2 bg-blue-50/80 p-4 rounded-xl border border-blue-200">
+                        <label for="student-groupe" class="block text-sm font-bold text-blue-950 mb-1.5">
+                            <i class="fa-solid fa-layer-group text-[#1e40af] mr-1.5"></i> Groupe attribué <span class="text-red-600">*</span>
+                        </label>
+                        <select id="student-groupe" onchange="handleGroupChange(this.value)" required
+                                class="w-full px-3.5 py-2.5 bg-white border border-blue-300 rounded-xl text-sm sm:text-base font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#1e40af]">
+                            <option value="Groupe A" selected>Groupe A — Sujet A (5 Onglet Accueil + 5 Onglet Insertion)</option>
+                            <option value="Groupe B">Groupe B — Sujet B (5 Onglet Accueil + 5 Onglet Insertion)</option>
+                            <option value="Groupe C">Groupe C — Sujet C (5 Onglet Accueil + 5 Onglet Insertion)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2 : Navigation rapide et affichage des questions -->
+            <div class="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-3 rounded-xl border border-blue-200 shadow-sm">
+                <div class="flex items-center space-x-2 text-xs font-semibold text-slate-600">
+                    <i class="fa-solid fa-compass text-[#1e40af]"></i>
+                    <span>Navigation rapide :</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="navigateQuestion(-1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-[#1e40af] border border-blue-200 transition">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> Précédent
+                    </button>
+                    <button type="button" onclick="navigateQuestion(1)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-[#1e40af] border border-blue-200 transition">
+                        Suivant <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Conteneur dynamique des questions QCM -->
+            <div id="questions-container" class="space-y-4"></div>
+
+            <!-- Barre de soumission -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2">
+                <button type="submit" id="btn-submit-exam" class="px-7 py-3 bg-[#1e40af] hover:bg-blue-900 text-white font-bold rounded-xl shadow-md transition flex items-center text-sm sm:text-base">
+                    <i class="fa-solid fa-paper-plane mr-2"></i> Envoyer ma copie
+                </button>
+                <button type="button" onclick="resetFormFields()" class="px-4 py-2.5 text-slate-600 hover:bg-blue-100/70 rounded-xl text-sm font-semibold transition">
+                    <i class="fa-solid fa-eraser mr-1"></i> Effacer mes réponses
+                </button>
+            </div>
+        </form>
+
+        <!-- Écran de résultat et synchronisation immédiate après validation -->
+        <div id="submission-result" class="hidden space-y-5">
+            <div class="form-card header-accent p-6 sm:p-8">
+                <div class="flex items-start justify-between flex-wrap gap-4 border-b border-slate-200 pb-5">
+                    <div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 mb-2">
+                            <i class="fa-solid fa-circle-check mr-1.5"></i> Évaluation terminée
+                        </span>
+                        <h2 class="text-2xl font-extrabold text-slate-900">Récapitulatif de votre copie (G2 II)</h2>
+                        <p id="res-student-info" class="text-sm text-slate-600 mt-1"></p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slate-50 border-2 border-slate-200 rounded-xl px-4 py-3 text-center">
+                            <span class="block text-[11px] uppercase tracking-wider text-slate-600 font-bold">Note / 10</span>
+                            <span id="res-score-10" class="text-2xl font-extrabold text-slate-900">0 / 10</span>
+                            <span id="res-score-raw" class="block text-[11px] text-slate-500 mt-0.5">(0 / 4 Q)</span>
+                        </div>
+                        <div class="bg-blue-50 border-2 border-blue-200 rounded-xl px-5 py-3 text-center">
+                            <span class="block text-[11px] uppercase tracking-wider text-[#1e40af] font-bold">Note / 20</span>
+                            <span id="res-score-20" class="text-3xl font-extrabold text-blue-950">0 / 20</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statut d'envoi vers Google Sheets -->
+                <div id="sync-status-banner" class="mt-4 p-3.5 rounded-xl border text-sm flex items-center space-x-3 bg-blue-50 border-blue-200 text-blue-950">
+                    <i class="fa-solid fa-spinner fa-spin text-lg"></i>
+                    <span>Synchronisation en cours vers Google Sheets...</span>
+                </div>
+
+                <div class="mt-5 flex flex-wrap gap-3">
+                    <button onclick="startNewStudentAttempt()" class="px-5 py-2.5 bg-[#1e40af] hover:bg-blue-900 text-white text-sm font-semibold rounded-xl shadow transition">
+                        <i class="fa-solid fa-rotate-right mr-1.5"></i> Nouvel étudiant
+                    </button>
+                    <button onclick="requestTeacherAccess()" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-xl shadow transition">
+                        <i class="fa-solid fa-lock mr-1.5"></i> Espace Enseignant
+                    </button>
+                </div>
+            </div>
+
+            <!-- Détail de la correction question par question -->
+            <div id="res-correction-details" class="space-y-4"></div>
+        </div>
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- VUE 2 : ESPACE ENSEIGNANT (TABLEAU DE BORD SÉCURISÉ PAR PIN)          -->
+    <!-- ===================================================================== -->
+    <section id="view-teacher" class="hidden max-w-6xl mx-auto px-4 pt-6 space-y-5">
+        
+        <!-- En-tête du tableau de bord -->
+        <div class="form-card header-accent p-6 sm:p-7">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2 mb-1">
+                        <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                            <i class="fa-solid fa-lock-open mr-1"></i> Session Enseignant active
+                        </span>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900">
+                        Tableau de Bord Enseignant — Classe G2 II (Word &amp; WPS Office)
+                    </h2>
+                    <p class="text-sm text-slate-600 mt-1">
+                        Configurez la synchronisation Google Sheets, gérez les accès et exportez les résultats en classeur Excel (<code class="bg-slate-100 px-1.5 py-0.5 rounded text-blue-900 font-semibold">.xlsx</code>).
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <button onclick="exportToExcel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow transition flex items-center text-sm">
+                        <i class="fa-solid fa-file-excel mr-2 text-base"></i> Exporter en Excel (.xlsx)
+                    </button>
+                    <button onclick="confirmClearData()" class="px-3.5 py-2.5 bg-white hover:bg-red-50 text-red-600 border border-red-200 font-semibold rounded-xl transition text-sm">
+                        <i class="fa-solid fa-trash-can mr-1"></i> Vider l'historique local
+                    </button>
+                    <button onclick="lockTeacherSpace()" class="px-3.5 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition text-sm">
+                        <i class="fa-solid fa-lock mr-1"></i> Verrouiller
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bloc 1 : Synchronisation Centralisée vers Google Sheets -->
+            <div class="mt-6 pt-5 border-t border-slate-200 bg-emerald-50/70 rounded-xl p-4 sm:p-5 border border-emerald-200 space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <h3 class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-emerald-950 flex items-center">
+                        <i class="fa-solid fa-cloud-arrow-up mr-2 text-emerald-600 text-base"></i> Synchronisation Centralisée vers Google Sheets
+                    </h3>
+                    <span id="teacher-sync-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                        URL non configurée
+                    </span>
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed">
+                    Collez l'URL de votre déploiement <strong>Google Apps Script</strong> (<code class="bg-white px-1.5 py-0.5 rounded border border-emerald-200">https://script.google.com/macros/s/.../exec</code>), cliquez sur <strong>Enregistrer &amp; Tester</strong>, puis téléchargez le fichier <code>g2-2.html</code> préconfiguré pour vos élèves.
+                </p>
+                <div class="flex flex-col md:flex-row gap-2.5">
+                    <input type="url" id="apps-script-url-input" placeholder="https://script.google.com/macros/s/VOTRE_SCRIPT/exec"
+                           class="flex-1 px-3.5 py-2 text-xs sm:text-sm bg-white border border-emerald-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-600 font-mono">
+                    <button onclick="saveAndTestScriptUrl()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold rounded-xl shadow transition shrink-0">
+                        <i class="fa-solid fa-plug-circle-check mr-1.5"></i> Enregistrer &amp; Tester
+                    </button>
+                    <button onclick="downloadStandaloneHtml(true)" class="px-4 py-2.5 bg-[#1e40af] hover:bg-blue-900 text-white text-xs sm:text-sm font-bold rounded-xl shadow transition shrink-0">
+                        <i class="fa-solid fa-file-export mr-1.5"></i> Télécharger le fichier élèves préconfiguré (g2-2.html)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bloc 2 : Gestion des accès et sécurité -->
+            <div class="mt-4 bg-blue-50/50 rounded-xl p-4 sm:p-5 border border-blue-200 space-y-3">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950 flex items-center">
+                    <i class="fa-solid fa-shield-halved mr-1.5 text-[#1e40af]"></i> Gestion des Accès &amp; Sécurité
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <!-- Modifier le code PIN Enseignant -->
+                    <div>
+                        <label for="new-pin-input" class="block text-xs text-slate-700 font-semibold mb-1">
+                            Code PIN Enseignant (Actuel : <span id="display-current-pin" class="font-mono text-[#1e40af] font-bold">2026</span>)
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="new-pin-input" maxlength="12" placeholder="Nouveau PIN..." class="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#1e40af]">
+                            <button onclick="updateTeacherPin()" class="px-3 py-1.5 bg-[#1e40af] hover:bg-blue-900 text-white text-xs font-semibold rounded-lg transition shrink-0">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Modifier le mot de passe Examen Complet -->
+                    <div>
+                        <label for="new-exam-pwd-input" class="block text-xs text-slate-700 font-semibold mb-1">
+                            Mot de passe Examen 10 Q (Actuel : <span id="display-current-exam-pwd" class="font-mono text-[#1e40af] font-bold">EXAM2026</span>)
+                        </label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="new-exam-pwd-input" maxlength="20" placeholder="Nouveau mot de passe..." class="w-full px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:border-[#1e40af]">
+                            <button onclick="updateFullExamPassword()" class="px-3 py-1.5 bg-[#1e40af] hover:bg-blue-900 text-white text-xs font-semibold rounded-lg transition shrink-0">
+                                Enregistrer
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Déverrouillage global pour toute la classe -->
+                    <div>
+                        <span class="block text-xs text-slate-700 font-semibold mb-1">
+                            Ouverture le jour de l'examen :
+                        </span>
+                        <button id="btn-toggle-global-exam" onclick="toggleGlobalFullExamLock()" class="w-full px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold rounded-lg transition flex items-center justify-center">
+                            <i class="fa-solid fa-lock-open mr-1.5"></i> Déverrouiller l'Examen Complet pour toute la classe
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistiques rapides -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-5 pt-5 border-t border-slate-100">
+                <div class="bg-blue-50/80 rounded-xl p-4 border border-blue-200">
+                    <span class="text-xs text-blue-900 font-bold uppercase">Copies locales</span>
+                    <p id="stat-total" class="text-2xl font-extrabold text-blue-950 mt-1">0</p>
+                </div>
+                <div class="bg-emerald-50/80 rounded-xl p-4 border border-emerald-200">
+                    <span class="text-xs text-emerald-800 font-bold uppercase">Moyenne (/ 20)</span>
+                    <p id="stat-avg" class="text-2xl font-extrabold text-emerald-950 mt-1">--</p>
+                </div>
+                <div class="bg-amber-50/80 rounded-xl p-4 border border-amber-200">
+                    <span class="text-xs text-amber-800 font-bold uppercase">Taux de réussite (≥ 10/20)</span>
+                    <p id="stat-pass-rate" class="text-2xl font-extrabold text-amber-950 mt-1">--</p>
+                </div>
+                <div class="bg-slate-100 rounded-xl p-4 border border-slate-200">
+                    <span class="text-xs text-slate-700 font-bold uppercase">Groupes (A / B / C)</span>
+                    <p id="stat-groups-split" class="text-lg font-extrabold text-slate-900 mt-1.5">0 / 0 / 0</p>
+                </div>
+            </div>
+
+            <!-- Filtres combinés Groupe & Mode -->
+            <div class="mt-5 pt-4 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold uppercase text-slate-500 mr-1">Groupe :</span>
+                    <button onclick="setTeacherFilter('ALL')" id="filter-ALL" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1e40af] text-white transition">Tous</button>
+                    <button onclick="setTeacherFilter('Groupe A')" id="filter-Groupe A" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Groupe A</button>
+                    <button onclick="setTeacherFilter('Groupe B')" id="filter-Groupe B" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Groupe B</button>
+                    <button onclick="setTeacherFilter('Groupe C')" id="filter-Groupe C" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Groupe C</button>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="text-xs font-bold uppercase text-slate-500 mr-1">Mode :</span>
+                    <button onclick="setTeacherModeFilter('ALL')" id="mode-filter-ALL" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1e40af] text-white transition">Tous</button>
+                    <button onclick="setTeacherModeFilter('Test (4 Q)')" id="mode-filter-Test (4 Q)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Test (4 Q)</button>
+                    <button onclick="setTeacherModeFilter('Complet (10 Q)')" id="mode-filter-Complet (10 Q)" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Complet (10 Q)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boîte de confirmation de suppression -->
+        <div id="clear-confirm-box" class="hidden form-card p-5 bg-red-50 border-red-300">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-triangle-exclamation text-red-600 text-xl"></i>
+                    <div>
+                        <p class="text-sm font-bold text-red-900">Supprimer toutes les copies G2 II enregistrées sur ce navigateur ?</p>
+                        <p class="text-xs text-red-700">Les lignes déjà envoyées vers Google Sheets ne seront pas affectées.</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button onclick="executeClearData()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl">
+                        Confirmer la suppression
+                    </button>
+                    <button onclick="cancelClearData()" class="px-4 py-2 bg-white border border-slate-300 text-slate-700 text-xs font-semibold rounded-xl">
+                        Annuler
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau des copies locales -->
+        <div class="form-card overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead class="bg-blue-50 text-blue-950">
+                        <tr>
+                            <th class="px-4 py-3 text-left font-bold text-xs uppercase">Date / Heure</th>
+                            <th class="px-4 py-3 text-left font-bold text-xs uppercase">Numéro</th>
+                            <th class="px-4 py-3 text-left font-bold text-xs uppercase">Nom &amp; Prénom</th>
+                            <th class="px-4 py-3 text-left font-bold text-xs uppercase">Groupe</th>
+                            <th class="px-4 py-3 text-left font-bold text-xs uppercase">Mode</th>
+                            <th class="px-4 py-3 text-center font-bold text-xs uppercase">Score</th>
+                            <th class="px-4 py-3 text-center font-bold text-xs uppercase">Note / 20</th>
+                            <th class="px-4 py-3 text-center font-bold text-xs uppercase">Google Sheets</th>
+                            <th class="px-4 py-3 text-center font-bold text-xs uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="submissions-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+                </table>
+            </div>
+            <div id="empty-table-msg" class="hidden p-8 text-center text-slate-500 text-sm">
+                Aucune copie enregistrée localement pour ce filtre.
+            </div>
+        </div>
+
+        <!-- Inspecteur de copie détaillée -->
+        <div id="copy-inspector" class="hidden form-card p-6 border-2 border-[#1e40af] bg-blue-50/40">
+            <div class="flex items-center justify-between border-b border-blue-200 pb-3 mb-4">
+                <h3 id="inspector-title" class="font-bold text-blue-950 text-base">Détail de la copie</h3>
+                <button onclick="closeInspector()" class="text-slate-500 hover:text-slate-800 text-sm font-semibold">
+                    <i class="fa-solid fa-xmark mr-1"></i> Fermer
+                </button>
+            </div>
+            <div id="inspector-body" class="space-y-3 text-sm"></div>
+        </div>
+
+    </section>
+
+    <script>
+        // =========================================================================
+        // 0. CONFIGURATION PAR DÉFAUT (INJECTÉE AUTOMATIQUEMENT LORS DE L'EXPORT)
+        // =========================================================================
+        const CONFIG_SCRIPT_URL = "";
+        const DEFAULT_TEACHER_PIN = "2026";
+        const DEFAULT_FULL_EXAM_PWD = "EXAM2026";
+        const DEFAULT_GLOBAL_UNLOCK = false;
+
+        // =========================================================================
+        // 1. BANQUES DE 10 QUESTIONS PAR GROUPE (A, B, C) — CLASSE G2 II
+        //    Microsoft Word (PC) & WPS Office (Mobile)
+        //    Chaque groupe : 5 questions [Onglet Accueil] + 5 questions [Onglet Insertion]
+        // =========================================================================
+        const QUESTIONS_BY_GROUP = {
+            "Groupe A": [
+                // --- 5 Questions : [Onglet Accueil] ---
+                {
+                    id: "A1",
+                    module: "[Onglet Accueil]",
+                    question: "Dans l'onglet Accueil de Microsoft Word (PC) et WPS Office (mobile), quel groupe d'outils permet de modifier la police (Calibri, Arial), la taille et la couleur des caractères ?",
+                    options: [
+                        "Le groupe Police",
+                        "Le groupe Paragraphe",
+                        "Le groupe Presse-papiers",
+                        "Le groupe Édition"
+                    ],
+                    correctIndex: 0,
+                    explanation: "Le groupe « Police » de l'onglet Accueil regroupe le choix de la police, la taille du texte, le gras, l'italique, le soulignement et la couleur de police."
+                },
+                {
+                    id: "A2",
+                    module: "[Onglet Accueil]",
+                    question: "À quoi sert l'icône représentée par un « pinceau » (Reproduire la mise en forme) située dans l'onglet Accueil ?",
+                    options: [
+                        "À copier uniquement le style visuel (police, couleur, taille) d'un texte pour l'appliquer à un autre passage.",
+                        "À dessiner des formes géométriques sur la feuille.",
+                        "À effacer toutes les images du document.",
+                        "À insérer un numéro de page automatiquement."
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'outil « Reproduire la mise en forme » (pinceau) copie uniquement le formatage d'un passage sélectionné pour l'appliquer rapidement à un autre texte."
+                },
+                {
+                    id: "A3",
+                    module: "[Onglet Accueil]",
+                    question: "Quel alignement de paragraphe dans l'onglet Accueil permet d'aligner le texte à la fois sur la marge de gauche ET sur la marge de droite pour un rendu soigné ?",
+                    options: [
+                        "Justifier",
+                        "Aligner à gauche",
+                        "Centrer",
+                        "Aligner à droite"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'option « Justifier » ajuste l'espacement entre les mots afin que les bords gauche et droit du paragraphe soient parfaitement alignés."
+                },
+                {
+                    id: "A4",
+                    module: "[Onglet Accueil]",
+                    question: "Dans l'onglet Accueil, quelle commande (groupe Presse-papiers) retire un texte sélectionné de sa position d'origine afin de le déplacer ailleurs ?",
+                    options: [
+                        "Couper",
+                        "Copier",
+                        "Rechercher",
+                        "Effacer toute la mise en forme"
+                    ],
+                    correctIndex: 0,
+                    explanation: "La commande « Couper » déplace la sélection vers le presse-papiers en la supprimant de son emplacement initial."
+                },
+                {
+                    id: "A5",
+                    module: "[Onglet Accueil]",
+                    question: "À quoi servent les « Styles » (Normal, Titre 1, Titre 2...) situés dans l'onglet Accueil ?",
+                    options: [
+                        "À appliquer en un clic une mise en forme cohérente (police, taille, couleur) et structurer les titres du document.",
+                        "À insérer un tableau de plusieurs colonnes.",
+                        "À protéger le fichier Word par mot de passe.",
+                        "À rogner une image."
+                    ],
+                    correctIndex: 0,
+                    explanation: "Les Styles harmonisent la présentation des titres et permettent de générer automatiquement une table des matières."
+                },
+                // --- 5 Questions : [Onglet Insertion] ---
+                {
+                    id: "A6",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion de Word (PC) et WPS Office (mobile), quel outil permet d'organiser des informations en lignes et en colonnes ?",
+                    options: [
+                        "Tableau",
+                        "Zone de texte",
+                        "Saut de page",
+                        "En-tête"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'outil « Tableau » de l'onglet Insertion crée une grille structurée de lignes et de colonnes."
+                },
+                {
+                    id: "A7",
+                    module: "[Onglet Insertion]",
+                    question: "Quel élément de l'onglet Insertion permet d'afficher automatiquement le titre du rapport dans la marge supérieure de chaque page ?",
+                    options: [
+                        "L'En-tête",
+                        "Le Pied de page",
+                        "Le WordArt",
+                        "Le Symbole"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'« En-tête » s'affiche dans la marge haute et se répète automatiquement sur toutes les pages."
+                },
+                {
+                    id: "A8",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion, à quoi sert l'outil « Saut de page » ?",
+                    options: [
+                        "À terminer immédiatement la page en cours et démarrer le texte suivant en haut de la page suivante.",
+                        "À supprimer une page vide à la fin du document.",
+                        "À insérer une photo depuis le téléphone.",
+                        "À aligner le texte au centre."
+                    ],
+                    correctIndex: 0,
+                    explanation: "Le « Saut de page » permet de passer proprement à la page suivante sans appuyer plusieurs fois sur Entrée."
+                },
+                {
+                    id: "A9",
+                    module: "[Onglet Insertion]",
+                    question: "Quel outil de l'onglet Insertion permet d'ajouter une photo enregistrée sur son ordinateur ou dans la galerie de son téléphone (WPS Office) ?",
+                    options: [
+                        "Images",
+                        "Formes",
+                        "Symbole",
+                        "Lien hypertexte"
+                    ],
+                    correctIndex: 0,
+                    explanation: "La commande « Images » permet d'importer une photo depuis le stockage du PC ou la galerie du smartphone."
+                },
+                {
+                    id: "A10",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion, quel outil permet de créer un cadre autonome déplaçable librement n'importe où sur la feuille pour y écrire du texte ?",
+                    options: [
+                        "La Zone de texte",
+                        "Le Numéro de page",
+                        "L'Interligne",
+                        "Les Puces"
+                    ],
+                    correctIndex: 0,
+                    explanation: "La « Zone de texte » crée un bloc indépendant que l'on peut positionner librement sur la page."
+                }
+            ],
+
+            "Groupe B": [
+                // --- 5 Questions : [Onglet Accueil] ---
+                {
+                    id: "B1",
+                    module: "[Onglet Accueil]",
+                    question: "Dans l'onglet Accueil, quelle icône (notée « G » sur Word français ou « B » sur WPS Office) permet d'épaissir les lettres d'un mot ?",
+                    options: [
+                        "Gras (G / B)",
+                        "Italique (I)",
+                        "Souligné (S / U)",
+                        "Barré (abc)"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'outil « Gras » (G en français, B pour Bold sur WPS Office) épaissit le tracé des caractères."
+                },
+                {
+                    id: "B2",
+                    module: "[Onglet Accueil]",
+                    question: "Quel outil de l'onglet Accueil permet de créer une liste d'éléments non ordonnés précédés de points ou de symboles ?",
+                    options: [
+                        "Les puces",
+                        "La numérotation (1, 2, 3...)",
+                        "Le retrait de paragraphe",
+                        "La casse (Aa)"
+                    ],
+                    correctIndex: 0,
+                    explanation: "Les « Puces » créent une liste à points lorsque l'ordre numérique n'est pas nécessaire."
+                },
+                {
+                    id: "B3",
+                    module: "[Onglet Accueil]",
+                    question: "Dans l'onglet Accueil, à quoi sert l'outil « Interligne » ?",
+                    options: [
+                        "À régler l'espace vertical entre les lignes d'un même paragraphe (ex : 1,0 ; 1,15 ; 1,5).",
+                        "À tracer un trait horizontal au milieu d'un mot.",
+                        "À changer la couleur de la page.",
+                        "À insérer une image."
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'interligne contrôle l'espacement vertical entre chaque ligne de texte d'un paragraphe."
+                },
+                {
+                    id: "B4",
+                    module: "[Onglet Accueil]",
+                    question: "Quel outil de l'onglet Accueil (groupe Édition) permet de corriger automatiquement un mot répété plusieurs fois dans tout le document ?",
+                    options: [
+                        "Rechercher et Remplacer",
+                        "Copier et Coller",
+                        "Reproduire la mise en forme",
+                        "Justifier"
+                    ],
+                    correctIndex: 0,
+                    explanation: "« Rechercher et Remplacer » trouve toutes les occurrences d'un mot et les remplace automatiquement."
+                },
+                {
+                    id: "B5",
+                    module: "[Onglet Accueil]",
+                    question: "Dans l'onglet Accueil, quel outil permet de surligner un passage important avec une couleur vive (jaune, vert, cyan) comme au feutre fluo ?",
+                    options: [
+                        "Couleur de surbrillance du texte",
+                        "Couleur de police",
+                        "Puces et numéros",
+                        "Aligner à droite"
+                    ],
+                    correctIndex: 0,
+                    explanation: "La « Couleur de surbrillance du texte » applique un fond fluo derrière les caractères sélectionnés."
+                },
+                // --- 5 Questions : [Onglet Insertion] ---
+                {
+                    id: "B6",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion, quel outil permet d'afficher automatiquement la pagination (1, 2, 3...) en bas ou en haut de chaque page ?",
+                    options: [
+                        "Numéro de page",
+                        "Puces",
+                        "WordArt",
+                        "Symbole"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'outil « Numéro de page » de l'onglet Insertion numérote automatiquement chaque feuille."
+                },
+                {
+                    id: "B7",
+                    module: "[Onglet Insertion]",
+                    question: "Quel outil de l'onglet Insertion permet d'ajouter des éléments graphiques comme des flèches, rectangles, cercles ou étoiles ?",
+                    options: [
+                        "Formes",
+                        "Tableau",
+                        "En-tête",
+                        "Saut de page"
+                    ],
+                    correctIndex: 0,
+                    explanation: "Le menu « Formes » permet de dessiner des rectangles, flèches, cercles et organigrammes."
+                },
+                {
+                    id: "B8",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion, à quoi sert l'ajout d'un « Lien hypertexte » (ou Lien) sur un texte ?",
+                    options: [
+                        "À rendre le texte cliquable pour ouvrir une page web, un fichier ou un autre endroit du document.",
+                        "À fusionner deux cellules d'un tableau.",
+                        "À augmenter la taille de la police.",
+                        "À supprimer l'en-tête."
+                    ],
+                    correctIndex: 0,
+                    explanation: "Un lien hypertexte transforme un texte ou une image en lien cliquable vers une URL ou un fichier."
+                },
+                {
+                    id: "B9",
+                    module: "[Onglet Insertion]",
+                    question: "Quel espace situé dans la marge inférieure de chaque feuille se configure depuis l'onglet Insertion ?",
+                    options: [
+                        "Le Pied de page",
+                        "L'En-tête",
+                        "La Zone de texte",
+                        "La Page de garde"
+                    ],
+                    correctIndex: 0,
+                    explanation: "Le « Pied de page » occupe la marge basse de chaque page du document."
+                },
+                {
+                    id: "B10",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion, quel outil permet d'insérer des caractères spéciaux absents du clavier (comme €, ©, ®, ±) ?",
+                    options: [
+                        "Symbole",
+                        "Image",
+                        "Tableau",
+                        "Lien"
+                    ],
+                    correctIndex: 0,
+                    explanation: "La commande « Symbole » donne accès aux caractères spéciaux monétaires, mathématiques et typographiques."
+                }
+            ],
+
+            "Groupe C": [
+                // --- 5 Questions : [Onglet Accueil] ---
+                {
+                    id: "C1",
+                    module: "[Onglet Accueil]",
+                    question: "Dans l'onglet Accueil, quel bouton permet de remettre un texte sélectionné à son format brut d'origine en supprimant toutes les couleurs et effets appliqués ?",
+                    options: [
+                        "Effacer toute la mise en forme",
+                        "Couper",
+                        "Justifier",
+                        "Numérotation"
+                    ],
+                    correctIndex: 0,
+                    explanation: "« Effacer toute la mise en forme » (icône A avec une gomme) supprime d'un clic tous les styles appliqués au texte."
+                },
+                {
+                    id: "C2",
+                    module: "[Onglet Accueil]",
+                    question: "Quel bouton de l'onglet Accueil permet de transformer instantanément un titre écrit en minuscules vers des MAJUSCULES sans avoir à le retaper ?",
+                    options: [
+                        "Modifier la casse (Aa)",
+                        "Couleur de police",
+                        "Interligne",
+                        "Puces"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'outil « Modifier la casse » (Aa) bascule rapidement entre minuscules, MAJUSCULES et majuscules en début de mot."
+                },
+                {
+                    id: "C3",
+                    module: "[Onglet Accueil]",
+                    question: "Quel alignement de l'onglet Accueil place un titre principal exactement au milieu horizontal de la feuille ?",
+                    options: [
+                        "Centrer",
+                        "Aligner à gauche",
+                        "Aligner à droite",
+                        "Justifier"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'alignement « Centrer » place le texte à égale distance des marges gauche et droite."
+                },
+                {
+                    id: "C4",
+                    module: "[Onglet Accueil]",
+                    question: "Dans l'onglet Accueil, quel outil permet d'incliner légèrement les caractères vers la droite (utile pour les citations ou mots étrangers) ?",
+                    options: [
+                        "Italique (I)",
+                        "Gras (G)",
+                        "Souligné (S)",
+                        "Indice (x₂)"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'outil « Italique » (icône I inclinée) penche les lettres vers la droite."
+                },
+                {
+                    id: "C5",
+                    module: "[Onglet Accueil]",
+                    question: "Quelle fonction de l'onglet Accueil permet d'écrire des formules comme H₂O ou des unités comme m² ?",
+                    options: [
+                        "Indice (x₂) et Exposant (x²)",
+                        "Puces et Numérotation",
+                        "Rechercher et Remplacer",
+                        "Couper et Coller"
+                    ],
+                    correctIndex: 0,
+                    explanation: "Les boutons « Indice » (x₂) et « Exposant » (x²) placent de petits caractères respectivement en bas ou en haut de la ligne."
+                },
+                // --- 5 Questions : [Onglet Insertion] ---
+                {
+                    id: "C6",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion, quel outil permet d'ajouter un texte décoratif avec des effets artistiques (ombres, contours, dégradés) ?",
+                    options: [
+                        "WordArt",
+                        "Saut de page",
+                        "Tableau",
+                        "Pied de page"
+                    ],
+                    correctIndex: 0,
+                    explanation: "« WordArt » transforme un texte en titre décoratif avec effets d'ombre et de dégradé."
+                },
+                {
+                    id: "C7",
+                    module: "[Onglet Insertion]",
+                    question: "Lorsqu'on crée un tableau via l'onglet Insertion, comment appelle-t-on chaque case formée par l'intersection d'une ligne et d'une colonne ?",
+                    options: [
+                        "Une cellule",
+                        "Une marge",
+                        "Un en-tête",
+                        "Une puce"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'intersection d'une ligne et d'une colonne dans un tableau s'appelle une « cellule »."
+                },
+                {
+                    id: "C8",
+                    module: "[Onglet Insertion]",
+                    question: "Dans l'onglet Insertion de Word PC, quel outil permet d'insérer une première page de présentation toute prête au début du document ?",
+                    options: [
+                        "Page de garde",
+                        "Numéro de page",
+                        "Symbole",
+                        "Zone de texte"
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'outil « Page de garde » insère une couverture mise en page automatiquement en première page."
+                },
+                {
+                    id: "C9",
+                    module: "[Onglet Insertion]",
+                    question: "Sur WPS Office mobile (téléphone), où doit-on appuyer pour insérer une image, un tableau ou une forme dans son document ?",
+                    options: [
+                        "Dans l'onglet / menu Insertion, puis sélectionner Image, Tableau ou Forme.",
+                        "Dans le bouton Enregistrer uniquement.",
+                        "Sur la touche Supprimer du clavier.",
+                        "Dans le groupe Presse-papiers."
+                    ],
+                    correctIndex: 0,
+                    explanation: "Sur WPS Office mobile comme sur Word PC, l'onglet « Insertion » centralise l'ajout d'images, tableaux, formes et zones de texte."
+                },
+                {
+                    id: "C10",
+                    module: "[Onglet Insertion]",
+                    question: "Quelle est la différence principale entre « En-tête » et « Pied de page » dans l'onglet Insertion ?",
+                    options: [
+                        "L'En-tête s'affiche en haut de chaque page tandis que le Pied de page s'affiche en bas de chaque page.",
+                        "L'En-tête s'affiche uniquement sur la dernière page.",
+                        "Le Pied de page sert uniquement à insérer des photos.",
+                        "Il n'y a aucune différence d'emplacement."
+                    ],
+                    correctIndex: 0,
+                    explanation: "L'En-tête occupe la marge supérieure de chaque feuille, alors que le Pied de page occupe la marge inférieure."
+                }
+            ]
+        };
+
+        // =========================================================================
+        // 2. ÉTAT DE L'APPLICATION, LOCALSTORAGE & SYNCHRONISATION GOOGLE SHEETS
+        // =========================================================================
+        const STORAGE_KEY = "exam_g2_2_results";
+        const PIN_STORAGE_KEY = "exam_g2_2_teacher_pin";
+        const EXAM_PWD_STORAGE_KEY = "exam_g2_2_full_exam_pwd";
+        const EXAM_GLOBAL_UNLOCK_KEY = "exam_g2_2_full_exam_global_unlock";
+        const SCRIPT_URL_STORAGE_KEY = "exam_g2_2_apps_script_url";
+
+        let currentMode = "test";       // 'test' (4 Q : 2 Accueil + 2 Insertion) ou 'full' (10 Q : 5 Accueil + 5 Insertion)
+        let currentGroup = "Groupe A";  // 'Groupe A', 'Groupe B' ou 'Groupe C'
+        let teacherFilter = "ALL";
+        let teacherModeFilter = "ALL";
+        let isTeacherUnlocked = false;
+        let isFullExamSessionUnlocked = false;
+        let activeQuestionIndex = 0;
+        let submissions = [];
+
+        window.onload = function () {
+            loadSubmissions();
+            syncFullExamLockUI();
+            syncCloudStatusUI();
+            renderQuestions();
+            updateBadgeOnly();
+        };
+
+        // =========================================================================
+        // 3. GESTION DE L'URL GOOGLE APPS SCRIPT & TÉLÉCHARGEMENT PRÉCONFIGURÉ
+        // =========================================================================
+        function getAppsScriptUrl() {
+            const saved = localStorage.getItem(SCRIPT_URL_STORAGE_KEY);
+            if (saved !== null && saved.trim() !== "") return saved.trim();
+            return (CONFIG_SCRIPT_URL || "").trim();
+        }
+
+        function syncCloudStatusUI() {
+            const url = getAppsScriptUrl();
+            const pill = document.getElementById("cloud-status-pill");
+            const teacherBadge = document.getElementById("teacher-sync-badge");
+            const urlInput = document.getElementById("apps-script-url-input");
+
+            if (urlInput && url && !urlInput.value) {
+                urlInput.value = url;
+            }
+
+            if (url) {
+                if (pill) {
+                    pill.className = "inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300";
+                    pill.innerHTML = '<i class="fa-solid fa-cloud-check mr-1"></i> Sync Google Sheets : Active';
+                }
+                if (teacherBadge) {
+                    teacherBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+                    teacherBadge.innerHTML = '<i class="fa-solid fa-circle-check mr-1"></i> URL Connectée';
+                }
+            } else {
+                if (pill) {
+                    pill.className = "inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-slate-100 text-slate-600 border border-slate-300";
+                    pill.innerHTML = '<i class="fa-solid fa-cloud mr-1"></i> Sync Google Sheets : Non configurée';
+                }
+                if (teacherBadge) {
+                    teacherBadge.className = "px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300";
+                    teacherBadge.innerHTML = 'URL non configurée';
+                }
+            }
+        }
+
+        async function saveAndTestScriptUrl() {
+            const input = document.getElementById("apps-script-url-input");
+            const url = input.value.trim();
+
+            if (!url) {
+                localStorage.removeItem(SCRIPT_URL_STORAGE_KEY);
+                syncCloudStatusUI();
+                showToast("URL Google Apps Script effacée.", "info");
+                return;
+            }
+
+            if (!url.startsWith("https://script.google.com/")) {
+                showToast("L'URL doit commencer par https://script.google.com/...", "error");
+                return;
+            }
+
+            localStorage.setItem(SCRIPT_URL_STORAGE_KEY, url);
+            syncCloudStatusUI();
+
+            try {
+                const now = new Date();
+                const formattedDate = now.toLocaleDateString("fr-FR") + " " + now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+
+                const testPayload = {
+                    date: formattedDate,
+                    classe: "G2 II",
+                    groupe: "Groupe A",
+                    mode: "Test Connexion",
+                    nom: "TEST_ENSEIGNANT",
+                    prenom: "Vérification",
+                    numero: "00",
+                    score: 10,
+                    total: 10
+                };
+
+                await fetch(url, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(testPayload)
+                });
+
+                showToast("URL enregistrée ! Une ligne TEST_ENSEIGNANT (10/10) a été envoyée vers Google Sheets.", "success");
+            } catch (err) {
+                showToast("URL enregistrée, mais erreur réseau lors du test d'envoi.", "error");
+            }
+        }
+
+        function downloadStandaloneHtml(isStudentPreconfigured = false) {
+            try {
+                const currentUrl = getAppsScriptUrl();
+                const currentPin = getTeacherPin();
+                const currentPwd = getFullExamPassword();
+                const currentGlobalUnlock = isGlobalFullExamUnlocked();
+
+                let fullHtml = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+
+                // Injection directe des paramètres dans le code source exporté
+                fullHtml = fullHtml.replace(
+                    /const CONFIG_SCRIPT_URL = ".*?";/,
+                    `const CONFIG_SCRIPT_URL = ${JSON.stringify(currentUrl)};`
+                );
+                fullHtml = fullHtml.replace(
+                    /const DEFAULT_TEACHER_PIN = ".*?";/,
+                    `const DEFAULT_TEACHER_PIN = ${JSON.stringify(currentPin)};`
+                );
+                fullHtml = fullHtml.replace(
+                    /const DEFAULT_FULL_EXAM_PWD = ".*?";/,
+                    `const DEFAULT_FULL_EXAM_PWD = ${JSON.stringify(currentPwd)};`
+                );
+                fullHtml = fullHtml.replace(
+                    /const DEFAULT_GLOBAL_UNLOCK = (true|false);/,
+                    `const DEFAULT_GLOBAL_UNLOCK = ${currentGlobalUnlock};`
+                );
+
+                const blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = isStudentPreconfigured ? "g2-2.html" : "examen_informatique_g2_2.html";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                if (isStudentPreconfigured) {
+                    showToast(
+                        currentUrl
+                            ? "Fichier élèves préconfiguré téléchargé : g2-2.html (Google Sheets connecté)."
+                            : "Fichier élèves téléchargé : g2-2.html (Attention : aucune URL Google Sheets configurée).",
+                        currentUrl ? "success" : "info"
+                    );
+                } else {
+                    showToast("Application téléchargée : examen_informatique_g2_2.html", "success");
+                }
+            } catch (err) {
+                showToast("Erreur lors du téléchargement du fichier HTML.", "error");
+            }
+        }
+
+        // =========================================================================
+        // 4. GESTION DU CODE PIN ENSEIGNANT, MOT DE PASSE EXAMEN & STOCKAGE
+        // =========================================================================
+        function getTeacherPin() {
+            return localStorage.getItem(PIN_STORAGE_KEY) || DEFAULT_TEACHER_PIN || "2026";
+        }
+
+        function getFullExamPassword() {
+            return localStorage.getItem(EXAM_PWD_STORAGE_KEY) || DEFAULT_FULL_EXAM_PWD || "EXAM2026";
+        }
+
+        function isGlobalFullExamUnlocked() {
+            const stored = localStorage.getItem(EXAM_GLOBAL_UNLOCK_KEY);
+            if (stored !== null) return stored === "true";
+            return Boolean(DEFAULT_GLOBAL_UNLOCK);
+        }
+
+        function syncFullExamLockUI() {
+            const globalOpen = isGlobalFullExamUnlocked();
+            const isOpen = globalOpen || isFullExamSessionUnlocked;
+            const icon = document.getElementById("full-exam-lock-icon");
+
+            if (icon) {
+                icon.className = isOpen
+                    ? "fa-solid fa-lock-open mr-1.5 text-emerald-600"
+                    : "fa-solid fa-lock mr-1.5 text-amber-600";
+            }
+
+            const toggleBtn = document.getElementById("btn-toggle-global-exam");
+            if (toggleBtn) {
+                if (globalOpen) {
+                    toggleBtn.className = "w-full px-3 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 text-xs font-bold rounded-lg transition flex items-center justify-center";
+                    toggleBtn.innerHTML = '<i class="fa-solid fa-lock mr-1.5"></i> Reverrouiller l\'Examen Complet (Mot de passe requis)';
+                } else {
+                    toggleBtn.className = "w-full px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-bold rounded-lg transition flex items-center justify-center";
+                    toggleBtn.innerHTML = '<i class="fa-solid fa-lock-open mr-1.5"></i> Déverrouiller l\'Examen Complet pour toute la classe';
+                }
+            }
+
+            const pinLabel = document.getElementById("display-current-pin");
+            if (pinLabel) pinLabel.textContent = getTeacherPin();
+
+            const pwdLabel = document.getElementById("display-current-exam-pwd");
+            if (pwdLabel) pwdLabel.textContent = getFullExamPassword();
+        }
+
+        function updateTeacherPin() {
+            const input = document.getElementById("new-pin-input");
+            const val = input.value.trim();
+            if (val.length < 4) {
+                showToast("Le code PIN doit contenir au moins 4 caractères.", "error");
+                return;
+            }
+            localStorage.setItem(PIN_STORAGE_KEY, val);
+            input.value = "";
+            syncFullExamLockUI();
+            showToast(`Nouveau code PIN Enseignant enregistré (${val}).`, "success");
+        }
+
+        function updateFullExamPassword() {
+            const input = document.getElementById("new-exam-pwd-input");
+            const val = input.value.trim();
+            if (val.length < 4) {
+                showToast("Le mot de passe doit contenir au moins 4 caractères.", "error");
+                return;
+            }
+            localStorage.setItem(EXAM_PWD_STORAGE_KEY, val);
+            input.value = "";
+            syncFullExamLockUI();
+            showToast(`Nouveau mot de passe Examen Complet enregistré (${val}).`, "success");
+        }
+
+        function toggleGlobalFullExamLock() {
+            const nextState = !isGlobalFullExamUnlocked();
+            localStorage.setItem(EXAM_GLOBAL_UNLOCK_KEY, nextState ? "true" : "false");
+            if (!nextState) {
+                isFullExamSessionUnlocked = false;
+                if (currentMode === "full") {
+                    setExamMode("test");
+                }
+            }
+            syncFullExamLockUI();
+            showToast(
+                nextState
+                    ? "L'Examen Complet (10 Q) est désormais déverrouillé pour toute la classe G2 II."
+                    : "L'Examen Complet (10 Q) est de nouveau verrouillé par mot de passe.",
+                "info"
+            );
+        }
+
+        function requestFullExamAccess() {
+            if (currentMode === "full") return;
+
+            if (isGlobalFullExamUnlocked() || isFullExamSessionUnlocked) {
+                setExamMode("full");
+                return;
+            }
+
+            document.getElementById("full-exam-error-msg").classList.add("hidden");
+            document.getElementById("full-exam-pwd-input").value = "";
+            document.getElementById("full-exam-modal").classList.remove("hidden");
+            setTimeout(() => document.getElementById("full-exam-pwd-input").focus(), 100);
+        }
+
+        function closeFullExamModal() {
+            document.getElementById("full-exam-modal").classList.add("hidden");
+        }
+
+        document.getElementById("full-exam-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const entered = document.getElementById("full-exam-pwd-input").value.trim();
+            if (entered === getFullExamPassword()) {
+                isFullExamSessionUnlocked = true;
+                closeFullExamModal();
+                setExamMode("full");
+                syncFullExamLockUI();
+                showToast("Examen Complet (10 Questions) déverrouillé !", "success");
+            } else {
+                document.getElementById("full-exam-error-msg").classList.remove("hidden");
+                document.getElementById("full-exam-pwd-input").value = "";
+                document.getElementById("full-exam-pwd-input").focus();
+            }
+        });
+
+        function requestTeacherAccess() {
+            if (isTeacherUnlocked) {
+                switchTab("teacher");
+                return;
+            }
+            document.getElementById("pin-error-msg").classList.add("hidden");
+            document.getElementById("teacher-pin-input").value = "";
+            document.getElementById("pin-modal").classList.remove("hidden");
+            setTimeout(() => document.getElementById("teacher-pin-input").focus(), 100);
+        }
+
+        function closePinModal() {
+            document.getElementById("pin-modal").classList.add("hidden");
+        }
+
+        document.getElementById("pin-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+            const entered = document.getElementById("teacher-pin-input").value.trim();
+            if (entered === getTeacherPin()) {
+                isTeacherUnlocked = true;
+                closePinModal();
+                document.getElementById("teacher-lock-icon").className = "fa-solid fa-lock-open mr-1 text-emerald-600";
+                switchTab("teacher");
+                showToast("Espace Enseignant déverrouillé.", "success");
+            } else {
+                document.getElementById("pin-error-msg").classList.remove("hidden");
+                document.getElementById("teacher-pin-input").value = "";
+                document.getElementById("teacher-pin-input").focus();
+            }
+        });
+
+        function lockTeacherSpace() {
+            isTeacherUnlocked = false;
+            document.getElementById("teacher-lock-icon").className = "fa-solid fa-lock mr-1 text-amber-600";
+            switchTab("student");
+            showToast("Espace Enseignant verrouillé.", "info");
+        }
+
+        function loadSubmissions() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                submissions = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                submissions = [];
+            }
+        }
+
+        function saveSubmissions() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(submissions));
+            } catch (e) {
+                showToast("Impossible de sauvegarder dans le stockage local.", "error");
+            }
+            updateBadgeOnly();
+            if (isTeacherUnlocked) {
+                updateTeacherDashboard();
+            }
+        }
+
+        function updateBadgeOnly() {
+            document.getElementById("badge-count").textContent = submissions.length;
+        }
+
+        // =========================================================================
+        // 5. RENDU DYNAMIQUE DES QUESTIONS & NAVIGATION PRÉCÉDENT / SUIVANT
+        //    Mode Test (4 Q) : 2 questions [Onglet Accueil] + 2 questions [Onglet Insertion]
+        //    Examen Complet (10 Q) : 5 questions [Onglet Accueil] + 5 questions [Onglet Insertion]
+        // =========================================================================
+        function getActiveQuestions() {
+            const groupList = QUESTIONS_BY_GROUP[currentGroup] || QUESTIONS_BY_GROUP["Groupe A"];
+            if (currentMode === "test") {
+                const accueilSample = groupList.slice(0, 2);
+                const insertionSample = groupList.slice(5, 7);
+                return [...accueilSample, ...insertionSample];
+            }
+            return groupList;
+        }
+
+        function handleGroupChange(newGroup) {
+            currentGroup = newGroup;
+            activeQuestionIndex = 0;
+            document.getElementById("group-badge-header").textContent = `Sujet : ${currentGroup}`;
+            renderQuestions();
+            showToast(`Questionnaire Word / WPS chargé pour le ${currentGroup}.`, "info");
+        }
+
+        function setExamMode(mode) {
+            currentMode = mode;
+            activeQuestionIndex = 0;
+            const btnTest = document.getElementById("btn-mode-test");
+            const btnFull = document.getElementById("btn-mode-full");
+            const modeIndicator = document.getElementById("mode-indicator");
+            const pointsLabel = document.getElementById("points-total-label");
+
+            if (mode === "test") {
+                // Reverrouillage automatique de l'Examen Complet au retour sur le Mode Test
+                isFullExamSessionUnlocked = false;
+                syncFullExamLockUI();
+
+                btnTest.className = "px-3 py-1.5 rounded-lg font-semibold bg-[#1e40af] text-white shadow-sm transition";
+                btnFull.className = "px-3 py-1.5 rounded-lg font-semibold text-blue-950 hover:bg-blue-100 transition flex items-center";
+                modeIndicator.className = "inline-block px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+                modeIndicator.innerHTML = '<i class="fa-solid fa-flask mr-1"></i> MODE TEST : 2 Onglet Accueil + 2 Onglet Insertion (4 Q)';
+                pointsLabel.textContent = "Barème : 4 points (ramené sur 20)";
+            } else {
+                btnFull.className = "px-3 py-1.5 rounded-lg font-semibold bg-[#1e40af] text-white shadow-sm transition flex items-center";
+                btnTest.className = "px-3 py-1.5 rounded-lg font-semibold text-blue-950 hover:bg-blue-100 transition";
+                modeIndicator.className = "inline-block px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-950 border border-blue-300";
+                modeIndicator.innerHTML = '<i class="fa-solid fa-graduation-cap mr-1"></i> EXAMEN COMPLET : 5 Onglet Accueil + 5 Onglet Insertion (10 Q)';
+                pointsLabel.textContent = "Barème : 10 points (ramené sur 20)";
+            }
+
+            document.getElementById("submission-result").classList.add("hidden");
+            document.getElementById("exam-form").classList.remove("hidden");
+            renderQuestions();
+        }
+
+        function navigateQuestion(delta) {
+            const questions = getActiveQuestions();
+            if (!questions.length) return;
+            activeQuestionIndex = Math.max(0, Math.min(questions.length - 1, activeQuestionIndex + delta));
+            const targetCard = document.getElementById(`card-${questions[activeQuestionIndex].id}`);
+            if (targetCard) {
+                targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }
+
+        function updateProgressIndicator() {
+            const questions = getActiveQuestions();
+            let answeredCount = 0;
+
+            questions.forEach((q, idx) => {
+                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+                if (selected) {
+                    answeredCount++;
+                    activeQuestionIndex = idx;
+                    const errEl = document.getElementById(`err-${q.id}`);
+                    const cardEl = document.getElementById(`card-${q.id}`);
+                    if (errEl) errEl.classList.add("hidden");
+                    if (cardEl) cardEl.classList.remove("border-red-400", "bg-red-50/20");
+                }
+            });
+
+            const total = questions.length;
+            const percent = total > 0 ? Math.round((answeredCount / total) * 100) : 0;
+            document.getElementById("progress-text").textContent = `${answeredCount} / ${total} questions répondues`;
+            document.getElementById("progress-bar").style.width = `${percent}%`;
+        }
+
+        function renderQuestions() {
+            const container = document.getElementById("questions-container");
+            const questions = getActiveQuestions();
+            container.innerHTML = "";
+
+            questions.forEach((q, idx) => {
+                const isInsertion = q.module.includes("Insertion");
+                const badgeStyle = isInsertion
+                    ? "text-indigo-900 bg-indigo-50 border border-indigo-200"
+                    : "text-blue-900 bg-blue-50 border border-blue-200";
+
+                const card = document.createElement("div");
+                card.className = "form-card p-6 sm:p-7 transition";
+                card.id = `card-${q.id}`;
+
+                let optionsHtml = "";
+                q.options.forEach((opt, optIdx) => {
+                    const letter = String.fromCharCode(65 + optIdx);
+                    optionsHtml += `
+                        <label class="option-label flex items-start space-x-3 p-3.5 rounded-xl border border-slate-200 cursor-pointer">
+                            <input type="radio" name="${q.id}" value="${optIdx}" onchange="updateProgressIndicator()" class="mt-1 h-4 w-4 text-[#1e40af] focus:ring-[#1e40af] border-slate-300">
+                            <span class="text-sm sm:text-base text-slate-800">
+                                <strong class="text-[#1e40af] mr-1.5">${letter})</strong> ${opt}
+                            </span>
+                        </label>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                        <span class="text-xs font-bold tracking-wide px-2.5 py-1 rounded-lg ${badgeStyle}">
+                            ${currentGroup} • ${q.module}
+                        </span>
+                        <span class="text-xs text-slate-500 font-semibold">Question ${idx + 1} / ${questions.length} • 1 pt</span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-4 leading-snug">
+                        ${idx + 1}. ${q.question} <span class="text-red-600">*</span>
+                    </h3>
+                    <div class="space-y-2.5">
+                        ${optionsHtml}
+                    </div>
+                    <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <button type="button" onclick="navigateQuestion(${idx - activeQuestionIndex - 1})" ${idx === 0 ? "disabled" : ""} class="text-xs font-semibold text-slate-500 hover:text-[#1e40af] disabled:opacity-30">
+                            <i class="fa-solid fa-chevron-left mr-1"></i> Précédente
+                        </button>
+                        <button type="button" onclick="navigateQuestion(${idx - activeQuestionIndex + 1})" ${idx === questions.length - 1 ? "disabled" : ""} class="text-xs font-semibold text-[#1e40af] hover:underline disabled:opacity-30">
+                            Suivante <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                    <p id="err-${q.id}" class="hidden text-xs text-red-600 font-semibold mt-3">
+                        <i class="fa-solid fa-circle-exclamation mr-1"></i> Veuillez sélectionner une réponse pour cette question.
+                    </p>
+                `;
+                container.appendChild(card);
+            });
+
+            updateProgressIndicator();
+        }
+
+        // =========================================================================
+        // 6. SOUMISSION, VALIDATION & SYNCHRONISATION VERS GOOGLE SHEETS
+        // =========================================================================
+        document.getElementById("exam-form").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const nom = document.getElementById("student-nom").value.trim().toUpperCase();
+            const prenom = document.getElementById("student-prenom").value.trim();
+            const numero = document.getElementById("student-numero").value.trim();
+            const classe = "G2 II";
+            const groupe = document.getElementById("student-groupe").value;
+
+            if (!nom || !prenom || !numero || !groupe) {
+                showToast("Veuillez remplir tous les champs obligatoires (Nom, Prénom, Numéro, Groupe).", "error");
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                return;
+            }
+
+            const questions = getActiveQuestions();
+            let allAnswered = true;
+            let firstUnansweredCard = null;
+
+            questions.forEach((q) => {
+                const selected = document.querySelector(`input[name="${q.id}"]:checked`);
+                const errEl = document.getElementById(`err-${q.id}`);
+                const cardEl = document.getElementById(`card-${q.id}`);
+
+                if (!selected) {
+                    allAnswered = false;
+                    errEl.classList.remove("hidden");
+                    cardEl.classList.add("border-red-400", "bg-red-50/20");
+                    if (!firstUnansweredCard) firstUnansweredCard = cardEl;
+                } else {
+                    errEl.classList.add("hidden");
+                    cardEl.classList.remove("border-red-400", "bg-red-50/20");
+                }
+            });
+
+            if (!allAnswered) {
+                showToast("Certaines questions n'ont pas encore reçu de réponse.", "error");
+                if (firstUnansweredCard) {
+                    firstUnansweredCard.scrollIntoView({ behavior: "smooth", block: "center" });
+                }
+                return;
+            }
+
+            let score = 0;
+            const answersMap = {};
+            const correctionItems = [];
+
+            questions.forEach((q, idx) => {
+                const selectedIdx = parseInt(document.querySelector(`input[name="${q.id}"]:checked`).value, 10);
+                const isCorrect = selectedIdx === q.correctIndex;
+                if (isCorrect) score++;
+
+                answersMap[q.id] = q.options[selectedIdx];
+                correctionItems.push({
+                    num: idx + 1,
+                    module: q.module,
+                    question: q.question,
+                    studentAnswer: q.options[selectedIdx],
+                    correctAnswer: q.options[q.correctIndex],
+                    isCorrect: isCorrect,
+                    explanation: q.explanation
+                });
+            });
+
+            const total = questions.length;
+            const score10 = ((score / total) * 10).toFixed(2);
+            const score20 = ((score / total) * 20).toFixed(2);
+            const now = new Date();
+            const timestamp = now.toLocaleDateString("fr-FR") + " " + now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+            const modeLabel = currentMode === "test" ? "Test (4 Q)" : "Complet (10 Q)";
+
+            const submissionRecord = {
+                id: "sub-g2-2-" + Date.now(),
+                timestamp: timestamp,
+                nom: nom,
+                prenom: prenom,
+                numero: numero,
+                classe: classe,
+                groupe: groupe,
+                mode: modeLabel,
+                score: score,
+                total: total,
+                score10: score10,
+                score20: score20,
+                synced: false,
+                answers: answersMap
+            };
+
+            submissions.unshift(submissionRecord);
+            saveSubmissions();
+
+            displayStudentResult(submissionRecord, correctionItems);
+            await sendResultToGoogleSheets(submissionRecord);
+        });
+
+        async function sendResultToGoogleSheets(record) {
+            const banner = document.getElementById("sync-status-banner");
+            const scriptUrl = getAppsScriptUrl();
+
+            if (!scriptUrl) {
+                banner.className = "mt-4 p-3.5 rounded-xl border text-sm flex items-center space-x-3 bg-amber-50 border-amber-200 text-amber-900";
+                banner.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg"></i><span>Copie enregistrée localement sur cet appareil (URL Google Sheets non configurée par l\'enseignant).</span>';
+                return;
+            }
+
+            banner.className = "mt-4 p-3.5 rounded-xl border text-sm flex items-center space-x-3 bg-blue-50 border-blue-200 text-blue-950";
+            banner.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-lg text-[#1e40af]"></i><span>Synchronisation en cours vers Google Sheets...</span>';
+
+            try {
+                const payload = {
+                    date: record.timestamp,
+                    classe: "G2 II",
+                    groupe: record.groupe,
+                    mode: record.mode,
+                    nom: record.nom,
+                    prenom: record.prenom,
+                    numero: record.numero,
+                    score: record.score,
+                    total: record.total
+                };
+
+                await fetch(scriptUrl, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify(payload)
+                });
+
+                record.synced = true;
+                saveSubmissions();
+
+                banner.className = "mt-4 p-3.5 rounded-xl border text-sm flex items-center space-x-3 bg-emerald-50 border-emerald-300 text-emerald-950 font-semibold";
+                banner.innerHTML = '<i class="fa-solid fa-cloud-check text-emerald-600 text-lg"></i><span>Copie synchronisée avec succès vers le tableau Google Sheets de l\'enseignant !</span>';
+                showToast("Résultat synchronisé vers Google Sheets !", "success");
+            } catch (error) {
+                banner.className = "mt-4 p-3.5 rounded-xl border text-sm flex items-center space-x-3 bg-red-50 border-red-200 text-red-900";
+                banner.innerHTML = '<i class="fa-solid fa-wifi text-red-600 text-lg"></i><span>Hors ligne : la copie reste enregistrée dans la mémoire locale de cet appareil.</span>';
+                showToast("Erreur réseau : copie sauvegardée localement.", "error");
+            }
+        }
+
+        function displayStudentResult(record, correctionItems) {
+            document.getElementById("exam-form").classList.add("hidden");
+            const resultDiv = document.getElementById("submission-result");
+            resultDiv.classList.remove("hidden");
+
+            document.getElementById("res-student-info").innerHTML = `
+                <strong>${record.nom} ${record.prenom}</strong> — N° ${record.numero} (${record.classe} • <strong>${record.groupe}</strong>) • Soumis le ${record.timestamp}
+            `;
+            document.getElementById("res-score-10").textContent = `${record.score10} / 10`;
+            document.getElementById("res-score-raw").textContent = `(${record.score} / ${record.total} bonnes rép.)`;
+            document.getElementById("res-score-20").textContent = `${record.score20} / 20`;
+
+            const detailsContainer = document.getElementById("res-correction-details");
+            detailsContainer.innerHTML = "";
+
+            correctionItems.forEach((item) => {
+                const card = document.createElement("div");
+                card.className = `form-card p-5 border-l-4 ${item.isCorrect ? "border-l-emerald-600" : "border-l-red-500"}`;
+
+                card.innerHTML = `
+                    <div class="flex items-start justify-between gap-2 mb-2">
+                        <div>
+                            <span class="text-xs font-bold text-[#1e40af] block mb-0.5">${item.module}</span>
+                            <h4 class="font-bold text-slate-900 text-sm sm:text-base">${item.num}. ${item.question}</h4>
+                        </div>
+                        <span class="shrink-0 px-2.5 py-0.5 rounded-full text-xs font-bold ${item.isCorrect ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}">
+                            ${item.isCorrect ? "Correct (+1)" : "Incorrect (0)"}
+                        </span>
+                    </div>
+                    <p class="text-sm text-slate-700">
+                        <span class="font-semibold">Votre réponse :</span> 
+                        <span class="${item.isCorrect ? "text-emerald-700 font-semibold" : "text-red-600 line-through"}">${item.studentAnswer}</span>
+                    </p>
+                    ${!item.isCorrect ? `
+                        <p class="text-sm text-emerald-800 mt-1">
+                            <span class="font-semibold">Bonne réponse :</span> <strong>${item.correctAnswer}</strong>
+                        </p>
+                    ` : ""}
+                    <div class="mt-3 p-3 rounded-xl bg-slate-50 text-xs text-slate-600 border border-slate-200">
+                        <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> <strong>Explication :</strong> ${item.explanation}
+                    </div>
+                `;
+                detailsContainer.appendChild(card);
+            });
+
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        function resetFormFields() {
+            document.getElementById("student-nom").value = "";
+            document.getElementById("student-prenom").value = "";
+            document.getElementById("student-numero").value = "";
+            document.querySelectorAll("input[type='radio']").forEach(r => r.checked = false);
+            document.querySelectorAll("[id^='err-']").forEach(el => el.classList.add("hidden"));
+            document.querySelectorAll("[id^='card-']").forEach(el => el.classList.remove("border-red-400", "bg-red-50/20"));
+            activeQuestionIndex = 0;
+            updateProgressIndicator();
+        }
+
+        function startNewStudentAttempt() {
+            resetFormFields();
+            document.getElementById("submission-result").classList.add("hidden");
+            document.getElementById("exam-form").classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
+        // =========================================================================
+        // 7. NAVIGATION & TABLEAU DE BORD ENSEIGNANT
+        // =========================================================================
+        function switchTab(tabName) {
+            const viewStudent = document.getElementById("view-student");
+            const viewTeacher = document.getElementById("view-teacher");
+            const tabStudent = document.getElementById("tab-student");
+            const tabTeacher = document.getElementById("tab-teacher");
+
+            if (tabName === "student") {
+                viewStudent.classList.remove("hidden");
+                viewTeacher.classList.add("hidden");
+                tabStudent.className = "px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-50 text-[#1e40af] border border-blue-200 transition";
+                tabTeacher.className = "px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition relative";
+            } else {
+                if (!isTeacherUnlocked) {
+                    requestTeacherAccess();
+                    return;
+                }
+                viewStudent.classList.add("hidden");
+                viewTeacher.classList.remove("hidden");
+                tabTeacher.className = "px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-blue-50 text-[#1e40af] border border-blue-200 transition relative";
+                tabStudent.className = "px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:bg-slate-100 border border-slate-200 transition";
+                syncFullExamLockUI();
+                syncCloudStatusUI();
+                updateTeacherDashboard();
+            }
+        }
+
+        function setTeacherFilter(filterVal) {
+            teacherFilter = filterVal;
+            ["ALL", "Groupe A", "Groupe B", "Groupe C"].forEach(key => {
+                const btn = document.getElementById(`filter-${key}`);
+                btn.className = key === filterVal
+                    ? "px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1e40af] text-white transition"
+                    : "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+            });
+            closeInspector();
+            updateTeacherDashboard();
+        }
+
+        function setTeacherModeFilter(modeVal) {
+            teacherModeFilter = modeVal;
+            ["ALL", "Test (4 Q)", "Complet (10 Q)"].forEach(key => {
+                const btn = document.getElementById(`mode-filter-${key}`);
+                btn.className = key === modeVal
+                    ? "px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1e40af] text-white transition"
+                    : "px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+            });
+            closeInspector();
+            updateTeacherDashboard();
+        }
+
+        function getFilteredSubmissions() {
+            return submissions.filter(s => {
+                const matchGroup = teacherFilter === "ALL" || s.groupe === teacherFilter;
+                const matchMode = teacherModeFilter === "ALL" || s.mode === teacherModeFilter;
+                return matchGroup && matchMode;
+            });
+        }
+
+        function updateTeacherDashboard() {
+            updateBadgeOnly();
+            const filtered = getFilteredSubmissions();
+            document.getElementById("stat-total").textContent = filtered.length;
+
+            const countA = submissions.filter(s => s.groupe === "Groupe A").length;
+            const countB = submissions.filter(s => s.groupe === "Groupe B").length;
+            const countC = submissions.filter(s => s.groupe === "Groupe C").length;
+            document.getElementById("stat-groups-split").textContent = `${countA} / ${countB} / ${countC}`;
+
+            const tbody = document.getElementById("submissions-table-body");
+            const emptyMsg = document.getElementById("empty-table-msg");
+            tbody.innerHTML = "";
+
+            if (filtered.length === 0) {
+                emptyMsg.classList.remove("hidden");
+                document.getElementById("stat-avg").textContent = "--";
+                document.getElementById("stat-pass-rate").textContent = "--";
+                return;
+            }
+
+            emptyMsg.classList.add("hidden");
+
+            let sum20 = 0;
+            let passedCount = 0;
+
+            filtered.forEach((sub) => {
+                const note20 = parseFloat(sub.score20);
+                sum20 += note20;
+                if (note20 >= 10) passedCount++;
+
+                const groupBadgeColor =
+                    sub.groupe === "Groupe A" ? "bg-blue-100 text-blue-900" :
+                    sub.groupe === "Groupe B" ? "bg-amber-100 text-amber-800" :
+                    "bg-indigo-100 text-indigo-800";
+
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-blue-50/40 transition";
+                tr.innerHTML = `
+                    <td class="px-4 py-3 text-slate-500 text-xs whitespace-nowrap">${sub.timestamp}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-700">${sub.numero}</td>
+                    <td class="px-4 py-3 font-semibold text-slate-900">${sub.nom} ${sub.prenom}</td>
+                    <td class="px-4 py-3 text-xs">
+                        <span class="px-2.5 py-0.5 rounded-full font-bold ${groupBadgeColor}">${sub.groupe}</span>
+                    </td>
+                    <td class="px-4 py-3 text-xs text-slate-600 font-medium">${sub.mode}</td>
+                    <td class="px-4 py-3 text-center font-bold text-slate-800">${sub.score} / ${sub.total}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold ${note20 >= 10 ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"}">
+                            ${sub.score20} / 20
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        ${sub.synced
+                            ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-800"><i class="fa-solid fa-check mr-1"></i>Synchronisée</span>'
+                            : '<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600">Locale</span>'}
+                    </td>
+                    <td class="px-4 py-3 text-center whitespace-nowrap space-x-2">
+                        <button onclick="inspectCopyById('${sub.id}')" class="text-[#1e40af] hover:text-blue-950 font-semibold text-xs underline">
+                            Détails
+                        </button>
+                        <button onclick="deleteSingleCopy('${sub.id}')" title="Supprimer cette copie" class="text-red-500 hover:text-red-700 text-xs">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById("stat-avg").textContent = (sum20 / filtered.length).toFixed(2);
+            document.getElementById("stat-pass-rate").textContent = Math.round((passedCount / filtered.length) * 100) + " %";
+        }
+
+        function deleteSingleCopy(subId) {
+            submissions = submissions.filter(s => s.id !== subId);
+            saveSubmissions();
+            closeInspector();
+            showToast("Copie supprimée de l'historique local.", "info");
+        }
+
+        function inspectCopyById(subId) {
+            const sub = submissions.find(s => s.id === subId);
+            if (!sub) return;
+
+            const inspector = document.getElementById("copy-inspector");
+            const title = document.getElementById("inspector-title");
+            const body = document.getElementById("inspector-body");
+
+            title.textContent = `Copie de ${sub.nom} ${sub.prenom} (N° ${sub.numero} • ${sub.groupe}) — Score : ${sub.score}/${sub.total} (${sub.score20}/20)`;
+            body.innerHTML = "";
+
+            const groupQuestions = QUESTIONS_BY_GROUP[sub.groupe] || QUESTIONS_BY_GROUP["Groupe A"];
+
+            groupQuestions.forEach((q) => {
+                if (sub.answers[q.id] !== undefined) {
+                    const given = sub.answers[q.id];
+                    const correct = q.options[q.correctIndex];
+                    const ok = given === correct;
+
+                    const row = document.createElement("div");
+                    row.className = `p-3.5 rounded-xl bg-white border ${ok ? "border-emerald-200" : "border-red-200"}`;
+                    row.innerHTML = `
+                        <p class="font-bold text-slate-900">${q.id} ${q.module} : ${q.question}</p>
+                        <p class="mt-1 text-xs">
+                            Réponse de l'étudiant : <strong class="${ok ? "text-emerald-700" : "text-red-600"}">${given}</strong>
+                            ${!ok ? ` | Réponse attendue : <strong class="text-emerald-700">${correct}</strong>` : ""}
+                        </p>
+                    `;
+                    body.appendChild(row);
+                }
+            });
+
+            inspector.classList.remove("hidden");
+            inspector.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+
+        function closeInspector() {
+            document.getElementById("copy-inspector").classList.add("hidden");
+        }
+
+        // =========================================================================
+        // 8. EXPORTATION EN CLASSEUR EXCEL MULTI-ONGLETS (.XLSX) VIA SHEETJS
+        // =========================================================================
+        function exportToExcel() {
+            if (submissions.length === 0) {
+                showToast("Aucune copie locale à exporter.", "error");
+                return;
+            }
+
+            try {
+                const workbook = XLSX.utils.book_new();
+
+                // Onglet 1 : Tous_les_Groupes_G2_II
+                const globalRows = submissions.map((sub) => {
+                    const groupQuestions = QUESTIONS_BY_GROUP[sub.groupe] || [];
+                    const detailSummary = groupQuestions
+                        .filter(q => sub.answers[q.id] !== undefined)
+                        .map(q => `${q.id} ${q.module}: ${sub.answers[q.id]}`)
+                        .join(" | ");
+
+                    return {
+                        "Date/Heure": sub.timestamp,
+                        "Numéro": sub.numero,
+                        "Nom": sub.nom,
+                        "Prénom": sub.prenom,
+                        "Classe": sub.classe,
+                        "Groupe": sub.groupe,
+                        "Mode": sub.mode,
+                        "Score": `${sub.score} / ${sub.total}`,
+                        "Note / 10": parseFloat(sub.score10),
+                        "Note / 20": parseFloat(sub.score20),
+                        "Google Sheets": sub.synced ? "Oui" : "Non",
+                        "Détail des réponses": detailSummary
+                    };
+                });
+
+                const globalSheet = XLSX.utils.json_to_sheet(globalRows);
+                globalSheet["!cols"] = [
+                    { wch: 18 }, { wch: 14 }, { wch: 18 }, { wch: 20 },
+                    { wch: 10 }, { wch: 12 }, { wch: 16 }, { wch: 12 },
+                    { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 65 }
+                ];
+                XLSX.utils.book_append_sheet(workbook, globalSheet, "Tous_les_Groupes_G2_II");
+
+                // Onglets 2, 3 et 4 : Groupe_A, Groupe_B, Groupe_C
+                ["Groupe A", "Groupe B", "Groupe C"].forEach((grpName) => {
+                    const grpSubs = submissions.filter(s => s.groupe === grpName);
+                    const grpQuestions = QUESTIONS_BY_GROUP[grpName];
+
+                    const grpRows = grpSubs.length > 0
+                        ? grpSubs.map((sub) => {
+                            const row = {
+                                "Date/Heure": sub.timestamp,
+                                "Numéro": sub.numero,
+                                "Nom": sub.nom,
+                                "Prénom": sub.prenom,
+                                "Classe": sub.classe,
+                                "Groupe": sub.groupe,
+                                "Mode": sub.mode,
+                                "Score": `${sub.score} / ${sub.total}`,
+                                "Note / 20": parseFloat(sub.score20)
+                            };
+                            grpQuestions.forEach((q) => {
+                                row[`${q.id} ${q.module}`] = sub.answers[q.id] || "Non concerné";
+                            });
+                            return row;
+                        })
+                        : [{ "Information": `Aucune copie enregistrée pour le ${grpName}` }];
+
+                    const sheet = XLSX.utils.json_to_sheet(grpRows);
+                    sheet["!cols"] = [
+                        { wch: 18 }, { wch: 14 }, { wch: 18 }, { wch: 20 },
+                        { wch: 10 }, { wch: 12 }, { wch: 16 }, { wch: 12 }, { wch: 12 },
+                        ...grpQuestions.map(() => ({ wch: 36 }))
+                    ];
+                    XLSX.utils.book_append_sheet(workbook, sheet, grpName.replace(" ", "_"));
+                });
+
+                const dateStr = new Date().toISOString().slice(0, 10);
+                XLSX.writeFile(workbook, `Resultats_Examen_G2_II_${dateStr}.xlsx`);
+                showToast("Classeur Excel multi-onglets G2 II téléchargé !", "success");
+            } catch (err) {
+                showToast("Erreur lors de la génération du fichier Excel.", "error");
+            }
+        }
+
+        function confirmClearData() {
+            document.getElementById("clear-confirm-box").classList.remove("hidden");
+        }
+
+        function cancelClearData() {
+            document.getElementById("clear-confirm-box").classList.add("hidden");
+        }
+
+        function executeClearData() {
+            submissions = [];
+            saveSubmissions();
+            closeInspector();
+            cancelClearData();
+            showToast("Historique local réinitialisé.", "success");
+        }
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            const bg = type === "error" ? "bg-red-600" : type === "success" ? "bg-emerald-600" : "bg-slate-900";
+            const icon = type === "error" ? "fa-circle-exclamation" : "fa-circle-check";
+
+            toast.className = `${bg} text-white px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center space-x-2 transition-opacity duration-300`;
+            toast.innerHTML = `<i class="fa-solid ${icon}"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = "0";
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
