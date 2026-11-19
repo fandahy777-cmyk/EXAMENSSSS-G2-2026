@@ -1161,7 +1161,7 @@
 
                 // Injection directe des paramètres dans les constantes par défaut du code source exporté
                 fullHtml = fullHtml.replace(
-                    /const DEFAULT_GAS_URL = ".*?";/,
+                    /const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbw2fFctfGz_NrWJMMWxhv_4UmHW7Pohc1FZctfjKZ6w1H6qdSJdaGeCgDcjjvtYMBD5/exec";/,
                     `const DEFAULT_GAS_URL = ${JSON.stringify(currentUrl)};`
                 );
                 fullHtml = fullHtml.replace(
