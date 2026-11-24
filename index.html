@@ -195,7 +195,7 @@
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 12px;
       margin-bottom: 16px;
     }
@@ -206,6 +206,13 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    input[readonly] {
+      background: #f1f5f9;
+      color: var(--muted);
+      font-weight: 600;
     }
 
     .feedback {
@@ -513,11 +520,15 @@
           <form id="exam-form">
             <div class="form-grid">
               <div>
-                <label><strong>Nom et Prénoms</strong></label>
+                <label for="student-num"><strong>N° Élève</strong></label>
+                <input type="text" id="student-num" placeholder="Ex. 12" required />
+              </div>
+              <div>
+                <label for="student-name"><strong>Nom et Prénoms</strong></label>
                 <input type="text" id="student-name" placeholder="Ex. RAKOTO Jean" required />
               </div>
               <div>
-                <label><strong>Classe</strong></label>
+                <label for="student-class"><strong>Classe</strong></label>
                 <input type="text" id="student-class" value="${currentClass}" readonly />
               </div>
             </div>
@@ -535,6 +546,7 @@
         `;
         document.getElementById("exam-form").onsubmit = async (e) => {
           e.preventDefault();
+          const numero = document.getElementById("student-num").value.trim();
           const nom = document.getElementById("student-name").value.trim();
           let score = 0;
           classData.examen.forEach((item, idx) => {
@@ -544,6 +556,7 @@
           const noteSur20 = ((score / classData.examen.length) * 20).toFixed(2);
           const payload = {
             date: new Date().toISOString(),
+            numero,
             nom,
             classe: currentClass,
             scoreBrut: `${score}/${classData.examen.length}`,
@@ -553,7 +566,7 @@
           const res = document.getElementById("exam-result");
           if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("VOTRE_URL")) {
             res.className = "feedback ok";
-            res.textContent = `Examen corrigé localement pour ${nom} (${currentClass}) : ${noteSur20}/20. Ajoutez votre URL Google Apps Script pour l'enregistrement automatique.`;
+            res.textContent = `Examen corrigé localement pour N° ${numero} — ${nom} (${currentClass}) : ${noteSur20}/20. Ajoutez votre URL Google Apps Script pour l'enregistrement automatique.`;
             return;
           }
 
@@ -565,7 +578,7 @@
               body: JSON.stringify(payload)
             });
             res.className = "feedback ok";
-            res.textContent = `Examen soumis pour ${nom} (${currentClass}) : ${noteSur20}/20. Résultat envoyé vers Google Sheets.`;
+            res.textContent = `Examen soumis pour N° ${numero} — ${nom} (${currentClass}) : ${noteSur20}/20. Résultat envoyé vers Google Sheets.`;
           } catch (err) {
             res.className = "feedback err";
             res.textContent = `Erreur d'envoi vers Google Sheets. Note calculée : ${noteSur20}/20.`;
