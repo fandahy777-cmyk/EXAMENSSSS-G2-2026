@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plateforme Pédagogique & Examen — G2 I, G2 II, G2 III</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --primary: #1d4ed8;
+      --primary-dark: #1e3a8a;
+      --accent: #0f766e;
+      --text: #1e293b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success: #15803d;
+      --danger: #b91c1c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: #fff;
+      padding: 22px 24px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 14px rgba(29, 78, 216, 0.18);
+    }
+
+    header h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    header p { font-size: 0.92rem; opacity: 0.92; }
+
+    .class-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .class-btn {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .class-btn.active {
+      border-color: var(--primary);
+      background: #eff6ff;
+      color: var(--primary-dark);
+    }
+
+    .tabs-bar {
+      display: flex;
+      gap: 8px;
+      background: var(--card);
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 18px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+      margin-bottom: 20px;
+    }
+
+    .module-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+      background: #fafcff;
+    }
+
+    .module-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .module-title { font-size: 1.08rem; font-weight: 700; color: var(--primary-dark); }
+    .badge {
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .badge.done { background: #dcfce7; color: var(--success); }
+
+    .objective {
+      font-size: 0.92rem;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    ul, ol { padding-left: 20px; margin: 8px 0; }
+    li { margin-bottom: 5px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    th { background: #f1f5f9; font-weight: 700; }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+      margin-top: 8px;
+    }
+
+    .btn.secondary {
+      background: #e2e8f0;
+      color: var(--text);
+      margin-left: 8px;
+    }
+
+    .question-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+
+    .question-box label {
+      display: block;
+      margin: 6px 0;
+      cursor: pointer;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    .feedback {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .feedback.ok { background: #dcfce7; color: var(--success); }
+    .feedback.err { background: #fee2e2; color: var(--danger); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Espace Numérique — G2 I, G2 II & G2 III</h1>
+      <p>Cours progressifs, exercices d'entraînement et évaluation synchronisée avec Google Sheets</p>
+    </header>
+
+    <!-- Sélecteur de classe -->
+    <div class="class-bar" role="tablist" aria-label="Choisir une classe">
+      <button class="class-btn active" data-class="G2 I" onclick="selectClass('G2 I')">
+        G2 I — Informatique de base
+      </button>
+      <button class="class-btn" data-class="G2 II" onclick="selectClass('G2 II')">
+        G2 II — Traitement de texte (Word)
+      </button>
+      <button class="class-btn" data-class="G2 III" onclick="selectClass('G2 III')">
+        G2 III — Tableur (Excel)
+      </button>
+    </div>
+
+    <!-- Onglets principaux : Cours / Exercices / Examen -->
+    <div class="tabs-bar" role="tablist" aria-label="Sections">
+      <button class="tab-btn active" id="tab-cours" onclick="selectTab('cours')">1. Cours</button>
+      <button class="tab-btn" id="tab-exercices" onclick="selectTab('exercices')">2. Exercices</button>
+      <button class="tab-btn" id="tab-examen" onclick="selectTab('examen')">3. Examen</button>
+    </div>
+
+    <!-- Zone dynamique -->
+    <main id="content-area" class="panel"></main>
+  </div>
+
+  <script>
+    // Remplacez cette URL par l'URL de déploiement de votre Web App Google Apps Script
+    const APPS_SCRIPT_URL = "VOTRE_URL_GOOGLE_APPS_SCRIPT_ICI";
+
+    const DATA = {
+      "G2 I": {
+        titre: "Informatique de base",
+        cours: [
+          {
+            id: "g2i-m1",
+            titre: "Module 1.1 : Découverte de l'ordinateur et du matériel (Hardware)",
+            objectif: "Identifier les composants d'un ordinateur et distinguer le matériel (hardware) des logiciels (software).",
+            contenuHtml: `
+              <ul>
+                <li><strong>Hardware (matériel) :</strong> tout ce qui se touche physiquement (écran, clavier, unité centrale, smartphone, clé USB).</li>
+                <li><strong>Software (logiciel) :</strong> les programmes qui font fonctionner le matériel (Windows, Android, Word, Excel, navigateur web).</li>
+                <li><strong>Processeur (CPU) :</strong> exécute les calculs et instructions.</li>
+                <li><strong>Mémoire vive (RAM) :</strong> mémoire temporaire rapide, vidée à l'extinction de l'appareil.</li>
+                <li><strong>Stockage (HDD, SSD, carte SD) :</strong> conserve les fichiers même hors tension.</li>
+                <li><strong>Périphériques :</strong> d'entrée (clavier, souris, micro), de sortie (écran, imprimante, haut-parleurs) et de stockage externe (clé USB).</li>
+              </ul>
+            `
+          },
+          {
+            id: "g2i-m2",
+            titre: "Module 1.2 : Le système d'exploitation et l'interface (Windows & Android)",
+            objectif: "Comprendre le rôle du système d'exploitation et se repérer sur l'écran de travail.",
+            contenuHtml: `
+              <ul>
+                <li><strong>Système d'exploitation (OS) :</strong> démarre l'appareil, gère le matériel et relie l'utilisateur aux applications (Windows, Android, iOS).</li>
+                <li><strong>Bureau Windows :</strong> icônes (double-clic pour ouvrir), barre des tâches (bouton Démarrer, fenêtres ouvertes, heure/réseau) et fenêtres (Réduire, Agrandir/Restaurer, Fermer).</li>
+                <li><strong>Smartphone (Android / WPS) :</strong> écran d'accueil, tiroir d'applications et navigation entre applications ouvertes.</li>
+              </ul>
+            `
+          },
+          {
+            id: "g2i-m3",
+            titre: "Module 1.3 : Gestion des fichiers et des dossiers",
+            objectif: "Ranger, retrouver et manipuler ses documents sans perdre son travail.",
+            contenuHtml: `
+              <ul>
+                <li><strong>Fichier :</strong> document enregistré avec un nom et une extension (<code>.docx</code>, <code>.xlsx</code>, <code>.pdf</code>, <code>.jpg</code> / <code>.png</code>).</li>
+                <li><strong>Dossier :</strong> espace de classement contenant des fichiers ou des sous-dossiers.</li>
+                <li><strong>Actions clés :</strong> créer un dossier, renommer (<code>F2</code>), copier/coller, couper/coller, supprimer vers la Corbeille et restaurer.</li>
+              </ul>
+            `
+          },
+          {
+            id: "g2i-m4",
+            titre: "Module 1.4 : Clavier et raccourcis indispensables",
+            objectif: "Gagner en rapidité et en précision lors de la saisie et de la gestion des fichiers.",
+            contenuHtml: `
+              <ul>
+                <li><strong>Touches clés :</strong> <code>Maj</code> (Shift), <code>Verr Maj</code>, <code>Entrée</code>, <code>Retour arrière</code> (efface à gauche), <code>Suppr</code> (efface à droite), <code>Ctrl</code> et <code>Alt</code>.</li>
+              </ul>
+              <table>
+                <thead><tr><th>Raccourci</th><th>Action</th><th>Utilité</th></tr></thead>
+                <tbody>
+                  <tr><td><code>Ctrl + C</code></td><td>Copier</td><td>Dupliquer un texte ou un fichier</td></tr>
+                  <tr><td><code>Ctrl + X</code></td><td>Couper</td><td>Déplacer un texte ou un fichier</td></tr>
+                  <tr><td><code>Ctrl + V</code></td><td>Coller</td><td>Insérer l'élément copié ou coupé</td></tr>
+                  <tr><td><code>Ctrl + Z</code></td><td>Annuler</td><td>Revenir en arrière après une erreur</td></tr>
+                  <tr><td><code>Ctrl + S</code></td><td>Enregistrer</td><td>Sauvegarder son travail</td></tr>
+                  <tr><td><code>Ctrl + A</code></td><td>Tout sélectionner</td><td>Sélectionner l'ensemble du contenu</td></tr>
+                </tbody>
+              </table>
+            `
+          }
+        ],
+        exercices: [
+          {
+            q: "Quel composant conserve les fichiers lorsque l'ordinateur est éteint ?",
+            options: ["La mémoire vive (RAM)", "Le disque dur / SSD", "Le curseur de la souris"],
+            answer: 1
+          },
+          {
+            q: "Quel raccourci clavier permet de déplacer (couper) un élément sélectionné ?",
+            options: ["Ctrl + C", "Ctrl + X", "Ctrl + V"],
+            answer: 1
+          }
+        ],
+        examen: [
+          {
+            q: "Lequel de ces éléments est un logiciel (Software) ?",
+            options: ["Un clavier USB", "Un écran tactile", "Microsoft Word / WPS Office"],
+            answer: 2
+          },
+          {
+            q: "Quelle touche efface le caractère situé à droite du curseur ?",
+            options: ["Retour arrière (Backspace)", "Suppr (Delete)", "Verr Maj"],
+            answer: 1
+          },
+          {
+            q: "Quelle extension correspond généralement à un document texte ?",
+            options: [".xlsx", ".docx", ".mp3"],
+            answer: 1
+          }
+        ]
+      },
+      "G2 II": {
+        titre: "Traitement de texte (Word & WPS Writer)",
+        cours: [
+          {
+            id: "g2ii-m1",
+            titre: "Modules 2.1 & 2.2 : Saisie et mise en forme (Accueil)",
+            objectif: "Saisir proprement un texte et maîtriser Police et Paragraphe (PC et WPS mobile).",
+            contenuHtml: `
+              <p>Contenu détaillé à compléter : règles de saisie, <code>Ctrl + G/I/U</code>, alignement Justifié, listes à puces et numérotées.</p>
+            `
+          },
+          {
+            id: "g2ii-m2",
+            titre: "Modules 2.3 & 2.4 : Insertion, mise en page et PDF",
+            objectif: "Insérer tableaux, images, en-têtes/pieds de page et exporter en PDF.",
+            contenuHtml: `
+              <p>Contenu détaillé à compléter : tableaux, habillage d'image, numérotation de pages, marges, orientation et exportation PDF.</p>
+            `
+          }
+        ],
+        exercices: [
+          {
+            q: "Quel alignement donne des bords droits à gauche et à droite sur un paragraphe ?",
+            options: ["Centré", "Justifié", "Aligné à droite"],
+            answer: 1
+          }
+        ],
+        examen: [
+          {
+            q: "Quel format est recommandé pour envoyer un document figé prêt à imprimer ?",
+            options: [".pdf", ".tmp", ".exe"],
+            answer: 0
+          }
+        ]
+      },
+      "G2 III": {
+        titre: "Tableur (Excel & WPS Spreadsheets)",
+        cours: [
+          {
+            id: "g2iii-m1",
+            titre: "Modules 3.1 & 3.2 : Structure d'un classeur et mise en forme",
+            objectif: "Repérer cellules, plages, feuilles et formater les nombres.",
+            contenuHtml: `
+              <p>Contenu détaillé à compléter : classeur, feuille, colonne, ligne, cellule (ex. <code>B4</code>), plage (<code>A2:D10</code>) et formats numériques.</p>
+            `
+          },
+          {
+            id: "g2iii-m2",
+            titre: "Modules 3.3 & 3.4 : Formules, =SI() et références absolues ($)",
+            objectif: "Automatiser les calculs de gestion avec =SOMME, =MOYENNE, =SI et $.",
+            contenuHtml: `
+              <p>Contenu détaillé à compléter : toute formule commence par <code>=</code>, fonctions statistiques, <code>=SI(test; vrai; faux)</code> et blocage avec <code>$</code>.</p>
+            `
+          }
+        ],
+        exercices: [
+          {
+            q: "Par quel symbole commence obligatoirement toute formule dans Excel ou WPS Spreadsheets ?",
+            options: ["#", "=", "@"],
+            answer: 1
+          }
+        ],
+        examen: [
+          {
+            q: "Quelle fonction calcule la moyenne d'une plage de notes de B2 à B10 ?",
+            options: ["=SOMME(B2:B10)", "=MOYENNE(B2:B10)", "=MAX(B2:B10)"],
+            answer: 1
+          }
+        ]
+      }
+    };
+
+    let currentClass = "G2 I";
+    let currentTab = "cours";
+
+    function getCompletedModules() {
+      try {
+        return JSON.parse(localStorage.getItem("completedModules_G2") || "[]");
+      } catch {
+        return [];
+      }
+    }
+
+    function toggleModuleDone(moduleId) {
+      const done = new Set(getCompletedModules());
+      if (done.has(moduleId)) done.delete(moduleId);
+      else done.add(moduleId);
+      localStorage.setItem("completedModules_G2", JSON.stringify([...done]));
+      render();
+    }
+
+    function selectClass(cls) {
+      currentClass = cls;
+      document.querySelectorAll(".class-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.class === cls);
+      });
+      render();
+    }
+
+    function selectTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+      document.getElementById("tab-" + tab).classList.add("active");
+      render();
+    }
+
+    function render() {
+      const area = document.getElementById("content-area");
+      const classData = DATA[currentClass];
+
+      if (currentTab === "cours") {
+        const completed = getCompletedModules();
+        area.innerHTML = `
+          <h2 style="margin-bottom:14px;">Cours — ${currentClass} : ${classData.titre}</h2>
+          ${classData.cours.map(mod => {
+            const isDone = completed.includes(mod.id);
+            return `
+              <div class="module-card">
+                <div class="module-header">
+                  <div class="module-title">${mod.titre}</div>
+                  <span class="badge ${isDone ? "done" : ""}">${isDone ? "Terminé" : "À lire"}</span>
+                </div>
+                <div class="objective">Objectif : ${mod.objectif}</div>
+                ${mod.contenuHtml}
+                <button class="btn" onclick="toggleModuleDone('${mod.id}')">
+                  ${isDone ? "Marquer comme non lu" : "Marquer comme lu"}
+                </button>
+                <button class="btn secondary" onclick="selectTab('exercices')">Aller aux exercices</button>
+              </div>
+            `;
+          }).join("")}
+        `;
+      } else if (currentTab === "exercices") {
+        area.innerHTML = `
+          <h2 style="margin-bottom:14px;">Exercices d'entraînement — ${currentClass}</h2>
+          <form id="exo-form">
+            ${classData.exercices.map((item, idx) => `
+              <div class="question-box">
+                <p><strong>${idx + 1}. ${item.q}</strong></p>
+                ${item.options.map((opt, oIdx) => `
+                  <label><input type="radio" name="exo_${idx}" value="${oIdx}" required /> ${opt}</label>
+                `).join("")}
+              </div>
+            `).join("")}
+            <button type="submit" class="btn">Vérifier mes réponses</button>
+          </form>
+          <div id="exo-result"></div>
+        `;
+        document.getElementById("exo-form").onsubmit = (e) => {
+          e.preventDefault();
+          let score = 0;
+          classData.exercices.forEach((item, idx) => {
+            const chosen = Number(document.querySelector(`input[name="exo_${idx}"]:checked`).value);
+            if (chosen === item.answer) score++;
+          });
+          const res = document.getElementById("exo-result");
+          res.className = "feedback ok";
+          res.textContent = `Score d'entraînement (${currentClass}) : ${score} / ${classData.exercices.length}`;
+        };
+      } else if (currentTab === "examen") {
+        area.innerHTML = `
+          <h2 style="margin-bottom:14px;">Examen — ${currentClass} (${classData.titre})</h2>
+          <form id="exam-form">
+            <div class="form-grid">
+              <div>
+                <label><strong>Nom et Prénoms</strong></label>
+                <input type="text" id="student-name" placeholder="Ex. RAKOTO Jean" required />
+              </div>
+              <div>
+                <label><strong>Classe</strong></label>
+                <input type="text" id="student-class" value="${currentClass}" readonly />
+              </div>
+            </div>
+            ${classData.examen.map((item, idx) => `
+              <div class="question-box">
+                <p><strong>${idx + 1}. ${item.q}</strong></p>
+                ${item.options.map((opt, oIdx) => `
+                  <label><input type="radio" name="exam_${idx}" value="${oIdx}" required /> ${opt}</label>
+                `).join("")}
+              </div>
+            `).join("")}
+            <button type="submit" class="btn">Soumettre l'examen</button>
+          </form>
+          <div id="exam-result"></div>
+        `;
+        document.getElementById("exam-form").onsubmit = async (e) => {
+          e.preventDefault();
+          const nom = document.getElementById("student-name").value.trim();
+          let score = 0;
+          classData.examen.forEach((item, idx) => {
+            const chosen = Number(document.querySelector(`input[name="exam_${idx}"]:checked`).value);
+            if (chosen === item.answer) score++;
+          });
+          const noteSur20 = ((score / classData.examen.length) * 20).toFixed(2);
+          const payload = {
+            date: new Date().toISOString(),
+            nom,
+            classe: currentClass,
+            scoreBrut: `${score}/${classData.examen.length}`,
+            noteSur20
+          };
+
+          const res = document.getElementById("exam-result");
+          if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("VOTRE_URL")) {
+            res.className = "feedback ok";
+            res.textContent = `Examen corrigé localement pour ${nom} (${currentClass}) : ${noteSur20}/20. Ajoutez votre URL Google Apps Script pour l'enregistrement automatique.`;
+            return;
+          }
+
+          try {
+            await fetch(APPS_SCRIPT_URL, {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+            res.className = "feedback ok";
+            res.textContent = `Examen soumis pour ${nom} (${currentClass}) : ${noteSur20}/20. Résultat envoyé vers Google Sheets.`;
+          } catch (err) {
+            res.className = "feedback err";
+            res.textContent = `Erreur d'envoi vers Google Sheets. Note calculée : ${noteSur20}/20.`;
+          }
+        };
+      }
+    }
+
+    render();
+  </script>
+</body>
+</html>
